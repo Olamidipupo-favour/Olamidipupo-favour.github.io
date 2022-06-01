@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- BEGIN HEAD -->
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="width=device-width, initial-scale=1" name="viewport" />
+	<meta name="description" content="Responsive Admin Template" />
+	<meta name="author" content="SmartUniversity" />
+	<title>UncleTee Science Secondary School|Dashboard</title>
+	<!-- google font -->
+	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet" type="text/css" />
+	<!-- icons -->
+	<link href="fonts/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+	<link href="fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+	<link href="fonts/font-awesome/v6/css/all.css" rel="stylesheet" type="text/css" />
+	<link href="fonts/material-design-icons/material-icon.css" rel="stylesheet" type="text/css" />
+	<!--bootstrap -->
+	<link href="../assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+	<!-- Material Design Lite CSS -->
+	<link rel="stylesheet" href="../assets/plugins/material/material.min.css">
+	<link rel="stylesheet" href="../assets/css/material_style.css">
+	<!-- Theme Styles -->
+	<link href="../assets/css/theme/dark/theme_style.css" rel="stylesheet" id="rt_style_components" type="text/css" />
+	<link href="../assets/css/plugins.min.css" rel="stylesheet" type="text/css" />
+	<link href="../assets/css/theme/dark/style.css" rel="stylesheet" type="text/css" />
+	<link href="../assets/css/responsive.css" rel="stylesheet" type="text/css" />
+	<link href="../assets/css/theme/dark/theme-color.css" rel="stylesheet" type="text/css" />
+	<!-- favicon -->
+	<link rel="shortcut icon" href="../assets/img/favicon.ico" />
+</head>
+<!-- END HEAD -->
+
+<body
+	class="page-header-fixed sidemenu-closed-hidelogo page-content-white page-md header-dark dark-sidebar-color logo-dark dark-theme">
+	<div class="page-wrapper">
+		<!-- start header -->
+		<div class="page-header navbar navbar-fixed-top">
+			<div class="page-header-inner ">
+				<!-- logo start -->
+				<div class="page-logo">
+					<a href="index.html">
+						<span class="logo-icon material-icons fa-rotate-0"><img src='../assets/img/favicon.png' style='height: 45px;
+						width: 45px;'></span>
+						<span class="logo-default">UTSS</span> </a>
+				</div>
+				<!-- logo end -->
+				<ul class="nav navbar-nav navbar-left in">
+					<li><a href="#" class="menu-toggler sidebar-toggler"><i class="icon-menu"></i></a></li>
+				</ul>
+				<form class="search-form-opened" action="#" method="GET">
+					<div class="input-group">
+						<input type="text" class="form-control" placeholder="Search..." name="query">
+						<span class="input-group-btn">
+							<a href="javascript:;" class="btn submit">
+								<i class="icon-magnifier"></i>
+							</a>
+						</span>
+					</div>
+				</form>
+				<!-- start mobile menu -->
+				<a class="menu-toggler responsive-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+					<span></span>
+				</a>
+				<!-- end mobile menu -->
+				<!-- start header menu -->
+				<div class="top-menu">
+					<ul class="nav navbar-nav pull-right">
+						<li><a class="fullscreen-btn"><i data-feather="maximize"></i></a></li>
+						<li class="dropdown dropdown-user">
+							<a class="dropdown-toggle" data-bs-toggle="dropdown" data-hover="dropdown"
+								data-close-others="true">
+								<img alt="" class="img-circle " src="../assets/img/dp.jpg" />
+								<span class="username username-hide-on-mobile"> Sneha
+							</a>
+							<ul class="dropdown-menu dropdown-menu-default">
+								<li>
+									<a href="user_profile.html">
+										<i class="icon-user"></i> Profile </a>
+								</li>
+								<li>
+									<a href="#">
+										<i class="icon-settings"></i> Settings
+									</a>
+								</li>
+								<li>
+									<a href="#">
+										<i class="icon-directions"></i> Help
+									</a>
+								</li>
+								<li class="divider"> </li>
+								<li>
+									<a href="lock_screen.html">
+										<i class="icon-lock"></i> Lock
+									</a>
+								</li>
+								<li>
+									<a href="login.html">
+										<i class="icon-logout"></i> Log Out </a>
+								</li>
+							</ul>
+					
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- end header -->
+		<!-- start color quick setting -->
+		<div class="settingSidebar">
+			<a href="javascript:void(0)" class="settingPanelToggle"> <i class="fa fa-spin fa-cog"></i>
+			</a>
+			<div class="settingSidebar-body ps-container ps-theme-default">
+				<div class=" fade show active">
+					<div class="setting-panel-header">Setting Panel
+					</div>
+					<div class="quick-setting slimscroll-style">
+						<ul id="themecolors">
+							<li>
+								<p class="sidebarSettingTitle">Sidebar Color</p>
+							</li>
+							<li class="complete">
+								<div class="theme-color sidebar-theme">
+									<a href="#" data-theme="white"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="dark"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="blue"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="indigo"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="cyan"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="green"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="red"><span class="head"></span><span
+											class="cont"></span></a>
+								</div>
+							</li>
+							<li>
+								<p class="sidebarSettingTitle">Header Brand color</p>
+							</li>
+							<li class="theme-option">
+								<div class="theme-color logo-theme">
+									<a href="#" data-theme="logo-white"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="logo-dark"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="logo-blue"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="logo-indigo"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="logo-cyan"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="logo-green"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="logo-red"><span class="head"></span><span
+											class="cont"></span></a>
+								</div>
+							</li>
+							<li>
+								<p class="sidebarSettingTitle">Header color</p>
+							</li>
+							<li class="theme-option">
+								<div class="theme-color header-theme">
+									<a href="#" data-theme="header-white"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="header-dark"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="header-blue"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="header-indigo"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="header-cyan"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="header-green"><span class="head"></span><span
+											class="cont"></span></a>
+									<a href="#" data-theme="header-red"><span class="head"></span><span
+											class="cont"></span></a>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end color quick setting -->
+		<!-- start page container -->
+		<div class="page-container">
+			<!-- start sidebar menu -->
+			<div class="sidebar-container">
+				<div class="sidemenu-container navbar-collapse collapse fixed-menu">
+					<div id="remove-scroll" class="left-sidemenu">
+						<ul class="sidemenu  page-header-fixed slimscroll-style" data-keep-expanded="false"
+							data-auto-scroll="true" data-slide-speed="200" style="padding-top: 20px">
+							<li class="sidebar-toggler-wrapper hide">
+								<div class="sidebar-toggler">
+									<span></span>
+								</div>
+							</li>
+							<li class="sidebar-user-panel">
+								<div class="sidebar-user">
+									<div class="sidebar-user-picture">
+										<img alt="image" src="../assets/img/dp.jpg">
+									</div>
+									<div class="sidebar-user-details">
+										<div class="user-name">Sneha Patel</div>
+										<div class="user-role">Administrator</div>
+									</div>
+								</div>
+							</li>
+							<li class="nav-item start active open">
+								<a href="#" class="nav-link nav-toggle">
+									<i data-feather="airplay"></i>
+									<span class="title">Dashboard</span>
+									<span class="selected"></span>
+									<span class="arrow open"></span>
+								</a>
+								<ul class="sub-menu">
+									<li class="nav-item active">
+										<a href="dashboard3.html" class="nav-link ">
+											<span class="title">Dashboard</span>
+											<span class="selected"></span>
+										</a>
+									</li>
+								</ul>
+							</li>
+							
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-toggle"> <i data-feather="user"></i>
+									<span class="title">Teachers</span> <span class="arrow"></span>
+								</a>
+								<ul class="sub-menu">
+									<li class="nav-item">
+										<a href="all_professors.html" class="nav-link "> <span class="title">All
+												Teachers</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="add_professor_bootstrap.html" class="nav-link "> <span class="title">Add
+												Teacher</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="edit_professor.html" class="nav-link "> <span class="title">Edit
+												Teacher</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-toggle"><i data-feather="users"></i>
+									<span class="title">Students</span><span class="arrow"></span></a>
+								<ul class="sub-menu">
+									<li class="nav-item">
+										<a href="all_students.html" class="nav-link "> <span class="title">All
+												Students</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="add_student.html" class="nav-link "> <span class="title">Add
+												Student</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="edit_student.html" class="nav-link "> <span class="title">Edit
+												Student</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="student_profile.html" class="nav-link "> <span class="title">About
+												Student</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-toggle"> <i data-feather="book"></i>
+									<span class="title">Subjects</span> <span class="arrow"></span>
+												</a>
+								<ul class="sub-menu">
+									<li class="nav-item">
+										<a href="all_courses.html" class="nav-link "> <span class="title">All
+												Subjects</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="add_course.html" class="nav-link "> <span class="title">Add
+												Subject</span>
+										</a>
+									</li>
+									
+									<li class="nav-item">
+										<a href="edit_course.html" class="nav-link "> <span class="title">Edit
+												Subject</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-toggle"> <i datonclick=""a-feather="book-open"></i>
+									<span class="title">Library</span> <span class="arrow"></span>
+								</a>
+								<ul class="sub-menu">
+									<li class="nav-item">
+										<a href="all_assets.html" class="nav-link "> <span class="title">All Library
+												Assets</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="add_library_bootstrap.html" class="nav-link "> <span class="title">Add
+												Asset</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="edit_library.html" class="nav-link "> <span class="title">Edit
+												Asset</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-toggle"> <i data-feather="smile"></i>
+									<span class="title">Staff</span> <span class="arrow"></span>
+								</a>
+								<ul class="sub-menu">
+									<li class="nav-item">
+										<a href="all_staffs.html" class="nav-link "> <span class="title">All
+												Staff</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="add_staff_bootstrap.html" class="nav-link "> <span class="title">Add
+												Staff </span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="edit_staff.html" class="nav-link "> <span class="title">Edit
+												Staff</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="staff_profile.html" class="nav-link "> <span class="title">Staff
+												Profile</span>
+										</a>
+									</li>
+								</ul>
+							</<li></li>
+							<li class="nav-item">
+								<a href="#" class="nav-link nav-toggle"> <i data-feather="dollar-sign"></i>
+									<span class="title">Fees</span> <span class="arrow"></span>
+								</a>
+								<ul class="sub-menu">
+									<li class="nav-item">
+										<a href="fees_collection.html" class="nav-link "> <span class="title">Fees
+												Collection</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="add_fees_bootstrap.html" class="nav-link "> <span class="title">Add
+												Fees</span>
+										</a>
+									</li>
+									<li class="nav-item">
+										<a href="fees_receipt.html" class="nav-link "> <span class="title">Fee
+												Receipt</span>
+										</a>
+									</li>
+								</ul>
+							</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- end sidebar menu -->
+			<!-- start page content -->
+			<div class="page-content-wrapper">
+				<div class="page-content">
+					<div class="page-bar">
+						<div class="page-title-breadcrumb">
+							<div class=" pull-left">
+								<div class="page-title">Dashboard</div>
+							</div>
+							<ol class="breadcrumb page-breadcrumb pull-right">
+								<li><i class="fa fa-home"></i>&nbsp;<a class="parent-item"
+										href="index.html">Home</a>&nbsp;<i class="fa fa-angle-right"></i>
+								</li>
+								<li class="active">Dashboard</li>
+							</ol>
+						</div>
+					</div>
+					<!-- start widget -->
+					<div class="row ">
+						<div class="col-xl-3 col-lg-6">
+							<div class="card comp-card">
+								<div class="card-body">
+									<div class="row align-items-center">
+										<div class="col">
+											<div class="col mt-0">
+												<h4 class="info-box-title">Total Students</h4>
+											</div>
+											<h3 class="mt-1 mb-3 info-box-title col-green">get from api</h3>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-3 col-lg-6">
+							<div class="card comp-card">
+								<div class="card-body">
+									<div class="row align-items-center">
+										<div class="col">
+											<div class="col mt-0">
+												<h4 class="info-box-title">Total Subjects</h4>
+											</div>
+										<h3 class="mt-1 mb-3 info-box-title col-green">get from api</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-3 col-lg-6">
+							<div class="card comp-card">
+								<div class="card-body">
+									<div class="row align-items-center">
+										<div class="col">
+											<div class="col mt-0">
+												<h4 class="info-box-title">Visitors</h4>
+											</div>
+											<h3 class="mt-1 mb-3 info-box-title col-green">get from api</h3>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+						<div class="col-lg-4 col-md-12 col-sm-12 col-12">
+							<div class="card  card-box">
+								<div class="card-head">
+									<header>Notifications</header>
+									<div class="tools">
+										<a class="fa fa-repeat btn-color box-refresh" href="javascript:;"></a>
+										<a class="t-collapse btn-color fa fa-chevron-down" href="javascript:;"></a>
+										<a class="t-close btn-color fa fa-times" href="javascript:;"></a>
+									</div>
+								</div>
+								<div class="card-body no-padding height-9">
+									<div class="row">
+										<div class="noti-information notification-menu">
+											<div class="notification-list mail-list not-list small-slimscroll-style">
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-primary"> <i class="fa fa-user-o"></i>
+													</span> <span class="text-purple">Abhay Jani</span> Added you as
+													friend
+													<span class="notificationtime">
+														<small>Just Now</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon blue-bgcolor"> <i class="fa fa-envelope-o"></i>
+													</span> <span class="text-purple">John Doe</span> send you a mail
+													<span class="notificationtime">
+														<small>Just Now</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-success"> <i class="fa fa-check-square-o"></i>
+													</span> Success Message
+													<span class="notificationtime">
+														<small> 2 Days Ago</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-warning"> <i class="fa fa-warning"></i>
+													</span> <strong>Database Overloaded Warning!</strong>
+													<span class="notificationtime">
+														<small>1 Week Ago</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-primary"> <i class="fa fa-user-o"></i>
+													</span> <span class="text-purple">Abhay Jani</span> Added you as
+													friend
+													<span class="notificationtime">
+														<small>Just Now</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon blue-bgcolor"> <i class="fa fa-envelope-o"></i>
+													</span> <span class="text-purple">John Doe</span> send you a mail
+													<span class="notificationtime">
+														<small>Just Now</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-success"> <i class="fa fa-check-square-o"></i>
+													</span> Success Message
+													<span class="notificationtime">
+														<small> 2 Days Ago</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-warning"> <i class="fa fa-warning"></i>
+													</span> <strong>Database Overloaded Warning!</strong>
+													<span class="notificationtime">
+														<small>1 Week Ago</small>
+													</span>
+												</a>
+												<a href="javascript:;" class="single-mail"> <span
+														class="icon bg-danger"> <i class="fa fa-times"></i>
+													</span> <strong>Server Error!</strong>
+													<span class="notificationtime">
+														<small>10 Days Ago</small>
+													</span>
+												</a>
+											</div>
+											<div class="full-width text-center p-t-10">
+												<button type="button"
+													class="btn purple btn-outline btn-circle margin-0">View All</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- start footer -->
+		<div class="page-footer">
+			<div class="page-footer-inner"> 2022 &copy; UncleTee Science Secondary School By
+				<a href="mailto:dipoagboola2019@gmail.com" target="_top" class="makerCss">Olamidipupo Agboola</a>
+			</div>
+			<div class="scroll-to-top">
+				<i class="icon-arrow-up"></i>
+			</div>
+		</div>
+		<!-- end footer -->
+	</div>
+	<!-- start js include path -->
+	<script src="../assets/plugins/jquery/jquery.min.js"></script>
+	<script src="../assets/plugins/popper/popper.js"></script>
+	<script src="../assets/plugins/jquery-blockui/jquery.blockui.min.js"></script>
+	<script src="../assets/plugins/jquery-slimscroll/jquery.slimscroll.js"></script>
+	<script src="../assets/plugins/feather/feather.min.js"></script>
+	<!-- bootstrap -->
+	<script src="../assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+	<script src="../assets/plugins/bootstrap-switch/js/bootstrap-switch.min.js"></script>
+	<!-- Common js-->
+	<script src="../assets/js/app.js"></script>
+	<script src="../assets/js/layout.js"></script>
+	<script src="../assets/js/theme-color.js"></script>
+	<!-- material -->
+	<script src="../assets/plugins/material/material.min.js"></script>
+</body>
+
+</html>
