@@ -14,7 +14,7 @@ ALLOWED_ORIGINS = "https://olamidipupo-favour.github.io,http://localhost:4321"
 TURNSTILE_HOSTNAMES = "olamidipupo-favour.github.io,studara.name.ng"
 GITHUB_REPO = "olamidipupo-favour/Olamidipupo-favour.github.io"
 CONTACT_TO = "dipoagboola2019@gmail.com"
-CONTACT_FROM = "Dipo Portfolio <onboarding@resend.dev>"
+CONTACT_FROM = "Dipo Portfolio <noreply@getwiki.ng>"
 
 # Secrets (set with `wrangler secret put <NAME>`):
 # TURNSTILE_SECRET, RESEND_API_KEY, ADMIN_TOKEN, REACTION_SALT,
