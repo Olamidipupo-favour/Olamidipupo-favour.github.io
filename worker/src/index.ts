@@ -89,13 +89,7 @@ async function voterId(request: Request, env: Env): Promise<string> {
     .join("");
 }
 
-function hex(bytes: ArrayBuffer): string {
-  return [...new Uint8Array(bytes)]
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function hmacHex(secret: string, payload: string): Promise<string> {
+async function hmacBase64Url(secret: string, payload: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
@@ -108,7 +102,10 @@ async function hmacHex(secret: string, payload: string): Promise<string> {
     key,
     new TextEncoder().encode(payload),
   );
-  return hex(signature);
+  return btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 async function verifySanitySignature(
@@ -125,17 +122,13 @@ async function verifySanitySignature(
     parts.find((part) => part.startsWith("t="))?.slice(2) ?? NaN,
   );
   const signature = parts.find((part) => part.startsWith("v1="))?.slice(3);
-  if (!Number.isFinite(timestamp) || !signature) return false;
+  if (!Number.isInteger(timestamp) || timestamp < 1_609_459_200_000 || !signature) {
+    return false;
+  }
+  if (Math.abs(Date.now() - timestamp) > 300_000) return false;
 
-  const seconds = timestamp > 1_000_000_000_000 ? timestamp / 1000 : timestamp;
-  if (Math.abs(Date.now() / 1000 - seconds) > 300) return false;
-
-  const signed = await hmacHex(secret, `${timestamp}.${rawBody}`);
-  const unsigned = await hmacHex(secret, rawBody);
-  return (
-    safeEqual(signature.toLowerCase(), signed) ||
-    safeEqual(signature.toLowerCase(), unsigned)
-  );
+  const expected = await hmacBase64Url(secret, `${timestamp}.${rawBody}`);
+  return safeEqual(signature, expected);
 }
 
 async function handleActivity(
