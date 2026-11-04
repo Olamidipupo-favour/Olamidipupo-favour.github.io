@@ -28,7 +28,8 @@ const client = projectId
       projectId,
       dataset,
       apiVersion: "2025-01-01",
-      useCdn: !token,
+      // Sanity's CDN can lag a publish; builds must read fresh data.
+      useCdn: false,
       token,
       perspective: previewToken ? "previewDrafts" : "published",
     })
