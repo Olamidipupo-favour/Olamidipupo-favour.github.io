@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="256" height="256" shape-rendering="crispEdges" role="img" aria-label="Pixel-art placeholder portrait">
+  <rect width="16" height="16" fill="#0A0D0C"/>
+  <rect x="1" y="1" width="14" height="14" fill="#101513"/>
+  <rect x="2" y="2" width="12" height="12" fill="#16201A"/>
+  <!-- hair -->
+  <rect x="4" y="2" width="8" height="1" fill="#080B09"/>
+  <rect x="3" y="3" width="10" height="1" fill="#080B09"/>
+  <rect x="3" y="4" width="2" height="2" fill="#080B09"/>
+  <rect x="11" y="4" width="2" height="2" fill="#080B09"/>
+  <!-- face -->
+  <rect x="5" y="4" width="6" height="4" fill="#D9A06B"/>
+  <rect x="4" y="5" width="1" height="2" fill="#D9A06B"/>
+  <rect x="11" y="5" width="1" height="2" fill="#D9A06B"/>
+  <rect x="5" y="8" width="6" height="1" fill="#B87D4C"/>
+  <!-- eyes + brows -->
+  <rect x="5" y="5" width="2" height="1" fill="#0A0D0C"/>
+  <rect x="9" y="5" width="2" height="1" fill="#0A0D0C"/>
+  <rect x="6" y="5" width="1" height="1" fill="#22C55E"/>
+  <rect x="10" y="5" width="1" height="1" fill="#22C55E"/>
+  <rect x="5" y="4" width="2" height="1" fill="#080B09"/>
+  <rect x="9" y="4" width="2" height="1" fill="#080B09"/>
+  <rect x="7" y="7" width="2" height="1" fill="#7A3F2A"/>
+  <!-- neck + hoodie -->
+  <rect x="7" y="9" width="2" height="1" fill="#B87D4C"/>
+  <rect x="3" y="10" width="10" height="4" fill="#22C55E"/>
+  <rect x="3" y="10" width="1" height="4" fill="#16A34A"/>
+  <rect x="12" y="10" width="1" height="4" fill="#16A34A"/>
+  <rect x="7" y="10" width="2" height="4" fill="#0A0D0C"/>
+  <rect x="5" y="11" width="2" height="1" fill="#86EFAC"/>
+  <rect x="9" y="11" width="2" height="1" fill="#86EFAC"/>
+  <!-- corner accents -->
+  <rect x="1" y="1" width="1" height="1" fill="#22C55E"/>
+  <rect x="14" y="1" width="1" height="1" fill="#22C55E"/>
+  <rect x="1" y="14" width="1" height="1" fill="#22C55E"/>
+  <rect x="14" y="14" width="1" height="1" fill="#22C55E"/>
+</svg>

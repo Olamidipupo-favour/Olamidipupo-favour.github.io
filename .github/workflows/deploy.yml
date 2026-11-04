@@ -1,0 +1,104 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sanity-publish]
+  schedule:
+    # Daily fallback for when a Sanity webhook is missed.
+    - cron: "17 4 * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Work out site URL and base path
+        env:
+          SITE_URL_VAR: ${{ vars.SITE_URL }}
+          BASE_PATH_VAR: ${{ vars.BASE_PATH }}
+        run: |
+          if [ -n "$SITE_URL_VAR" ]; then
+            site="$SITE_URL_VAR"
+          else
+            site="https://${GITHUB_REPOSITORY_OWNER}.github.io"
+          fi
+
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [ -n "$BASE_PATH_VAR" ]; then
+            base="$BASE_PATH_VAR"
+          elif [[ "$repo" == *.github.io ]]; then
+            base="/"
+          else
+            base="/$repo"
+          fi
+
+          {
+            echo "SITE_URL=${site%/}"
+            echo "BASE_PATH=$base"
+          } >> "$GITHUB_ENV"
+
+      - name: Cache Astro build output
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules/.vite
+            .astro
+          key: astro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            astro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run check
+
+      - name: Build
+        env:
+          PUBLIC_SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          PUBLIC_SANITY_DATASET: ${{ vars.SANITY_DATASET || 'production' }}
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,309 @@
+---
+import { Command, CornerDownLeft, Search } from "lucide-astro";
+import type { Post, Project, SiteSettings } from "@/lib/types";
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+  projects: Project[];
+  posts: Post[];
+}
+
+const { settings, projects, posts } = Astro.props;
+
+const links = [
+  { label: "Home", href: withBase("/"), hint: "page" },
+  { label: "Work / projects", href: withBase("/projects"), hint: "page" },
+  { label: "Notes", href: withBase("/notes"), hint: "page" },
+  { label: "Gallery", href: withBase("/gallery"), hint: "page" },
+  { label: "About", href: withBase("/about"), hint: "page" },
+  { label: "CV", href: withBase("/cv"), hint: "page" },
+  { label: "Work with me", href: withBase("/work-with-me"), hint: "page" },
+  { label: "Contact", href: withBase("/contact"), hint: "page" },
+];
+
+const actions = [
+  { label: "Toggle theme", action: "theme", hint: "appearance" },
+  { label: "Toggle Shonen mode", action: "shonen", hint: "appearance" },
+  { label: "Toggle interface sound", action: "sound", hint: "sound" },
+  { label: "Open the terminal", action: "terminal", hint: "terminal" },
+  { label: "Play Keep the Uptime", action: "game", hint: "game" },
+  { label: "Open CV", action: "cv", hint: "cv" },
+];
+---
+
+<dialog class="palette" data-palette aria-labelledby="palette-title">
+  <div class="w-full max-w-xl border-2 border-ink bg-bg shadow-panel">
+    <div class="flex items-center gap-3 border-b border-line px-4 py-3">
+      <Search class="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
+      <label class="sr-only" for="palette-input">Search commands and pages</label>
+      <input
+        id="palette-input"
+        data-palette-input
+        class="w-full bg-transparent font-mono text-sm text-ink placeholder:text-muted focus:outline-none"
+        type="text"
+        placeholder="Jump to a page, project or command..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <kbd class="border border-line px-1.5 py-0.5 font-mono text-[0.6rem] text-muted"
+        >ESC</kbd
+      >
+    </div>
+
+    <h2 id="palette-title" class="sr-only">Command palette</h2>
+    <ul class="max-h-[min(60vh,26rem)] overflow-y-auto p-2" data-palette-list>
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              data-command
+              data-href={link.href}
+              class="flex items-center justify-between gap-4 px-3 py-2.5 text-sm text-ink hover:bg-raised aria-selected:bg-accent aria-selected:text-accent-ink"
+            >
+              <span>{link.label}</span>
+              <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+                {link.hint}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+      {
+        projects.map((project) => (
+          <li>
+            <a
+              href={withBase(`/projects/${project.slug}`)}
+              data-command
+              data-href={withBase(`/projects/${project.slug}`)}
+              class="flex items-center justify-between gap-4 px-3 py-2.5 text-sm text-ink hover:bg-raised aria-selected:bg-accent aria-selected:text-accent-ink"
+            >
+              <span>Project: {project.title}</span>
+              <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+                case study
+              </span>
+            </a>
+          </li>
+        ))
+      }
+      {
+        posts.map((post) => (
+          <li>
+            <a
+              href={withBase(`/notes/${post.slug}`)}
+              data-command
+              data-href={withBase(`/notes/${post.slug}`)}
+              class="flex items-center justify-between gap-4 px-3 py-2.5 text-sm text-ink hover:bg-raised aria-selected:bg-accent aria-selected:text-accent-ink"
+            >
+              <span>Note: {post.title}</span>
+              <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+                note
+              </span>
+            </a>
+          </li>
+        ))
+      }
+      {
+        actions.map((item) => (
+          <li>
+            <button
+              type="button"
+              data-command
+              data-action={item.action}
+              class="flex w-full items-center justify-between gap-4 px-3 py-2.5 text-left text-sm text-ink hover:bg-raised aria-selected:bg-accent aria-selected:text-accent-ink"
+            >
+              <span>{item.label}</span>
+              <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+                {item.hint}
+              </span>
+            </button>
+          </li>
+        ))
+      }
+      <li>
+        <a
+          href={`mailto:${settings.email}`}
+          data-command
+          class="flex items-center justify-between gap-4 px-3 py-2.5 text-sm text-ink hover:bg-raised aria-selected:bg-accent aria-selected:text-accent-ink"
+        >
+          <span>Email Dipo</span>
+          <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+            {settings.email}
+          </span>
+        </a>
+      </li>
+    </ul>
+
+    <div
+      class="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 font-mono text-[0.6rem] uppercase tracking-wider text-muted"
+    >
+      <span class="flex items-center gap-1.5">
+        <CornerDownLeft class="h-3 w-3" aria-hidden="true" /> open
+      </span>
+      <span class="flex items-center gap-1.5">
+        <Command class="h-3 w-3" aria-hidden="true" /> K anywhere
+      </span>
+      <span>↑ ↓ navigate</span>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .palette {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 1.25rem;
+    border: 0;
+    background: rgb(0 0 0 / 0.62);
+    color: rgb(var(--ink));
+  }
+
+  .palette[open] {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: min(16vh, 9rem);
+  }
+
+  .palette::backdrop {
+    background: rgb(0 0 0 / 0.55);
+  }
+
+  .palette [data-command][aria-selected="true"] {
+    background: rgb(var(--accent));
+    color: rgb(var(--accent-ink));
+  }
+
+  .palette [data-command][aria-selected="true"] span:last-child {
+    color: inherit;
+  }
+</style>
+
+<script>
+  import { blip } from "@/lib/sound";
+
+  let keysBound = false;
+
+  const initPalette = () => {
+    const dialog = document.querySelector<HTMLDialogElement>("[data-palette]");
+    if (!dialog || dialog.dataset.ready === "true") return;
+    dialog.dataset.ready = "true";
+
+    const input = dialog.querySelector<HTMLInputElement>("[data-palette-input]");
+    const list = dialog.querySelector<HTMLElement>("[data-palette-list]");
+
+    const items = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>("[data-command]"),
+      ).filter((item) => (item.closest("li") as HTMLElement).hidden === false);
+
+    let active = 0;
+
+    const paint = () => {
+      items().forEach((item, index) => {
+        item.setAttribute("aria-selected", String(index === active));
+      });
+    };
+
+    const filter = () => {
+      const term = (input?.value ?? "").trim().toLowerCase();
+      dialog.querySelectorAll<HTMLButtonElement | HTMLAnchorElement>(
+        "[data-command]",
+      ).forEach((item) => {
+        const row = item.closest("li") as HTMLElement;
+        row.hidden = term.length > 0 && !item.textContent!.toLowerCase().includes(term);
+      });
+      active = 0;
+      paint();
+      list?.scrollTo({ top: 0 });
+    };
+
+    const open = () => {
+      if (!dialog.open) dialog.showModal();
+      if (input) {
+        input.value = "";
+        filter();
+        window.requestAnimationFrame(() => input.focus());
+      }
+      blip(440, 0.05);
+    };
+
+    document.querySelectorAll("[data-open-palette]").forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        open();
+      });
+    });
+
+    input?.addEventListener("input", filter);
+
+    dialog.addEventListener("keydown", (event) => {
+      const visible = items();
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        active = Math.min(active + 1, visible.length - 1);
+        active = Math.max(0, active);
+        paint();
+        visible[active]?.scrollIntoView({ block: "nearest" });
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        active = Math.max(active - 1, 0);
+        paint();
+        visible[active]?.scrollIntoView({ block: "nearest" });
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        visible[active]?.click();
+      }
+    });
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.querySelectorAll<HTMLElement>("[data-command]").forEach((item) => {
+      item.addEventListener("click", () => {
+        const action = item.dataset.action;
+        const href = item.dataset.href;
+        dialog.close();
+        blip(560, 0.05);
+
+        if (href) return; // Anchor navigation takes over.
+        if (action === "theme") {
+          document.querySelector<HTMLButtonElement>("[data-theme-toggle]")?.click();
+        } else if (action === "shonen") {
+          document.querySelector<HTMLButtonElement>("[data-shonen-toggle]")?.click();
+        } else if (action === "sound") {
+          document.querySelector<HTMLButtonElement>("[data-sound-toggle]")?.click();
+        } else if (action === "terminal") {
+          document.querySelector<HTMLButtonElement>("[data-open-terminal]")?.click();
+        } else if (action === "game") {
+          document.querySelector<HTMLButtonElement>("[data-open-game]")?.click();
+        } else if (action === "cv") {
+          document.querySelector<HTMLButtonElement>("[data-open-cv]")?.click();
+        }
+      });
+    });
+
+    if (!keysBound) {
+      keysBound = true;
+      document.addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          const current = document.querySelector<HTMLDialogElement>("[data-palette]");
+          if (current?.open) {
+            current.close();
+          } else {
+            document.querySelector<HTMLButtonElement>("[data-open-palette]")?.click();
+          }
+        }
+      });
+    }
+  };
+
+  initPalette();
+  document.addEventListener("astro:page-load", initPalette);
+</script>

@@ -1,0 +1,17 @@
+{
+  "name": "dipo-portfolio-worker",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute dipo-portfolio --local --file=./schema.sql",
+    "db:remote": "wrangler d1 execute dipo-portfolio --remote --file=./schema.sql",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261103.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.0.0"
+  }
+}

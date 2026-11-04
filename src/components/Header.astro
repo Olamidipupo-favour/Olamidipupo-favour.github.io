@@ -1,0 +1,168 @@
+---
+import { Menu, X } from "lucide-astro";
+import type { SiteSettings } from "@/lib/types";
+import { basePath, withBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+}
+
+const { settings } = Astro.props;
+const path =
+  basePath &&
+  (Astro.url.pathname === basePath ||
+    Astro.url.pathname.startsWith(`${basePath}/`))
+    ? Astro.url.pathname.slice(basePath.length) || "/"
+    : Astro.url.pathname;
+const nav = [
+  { label: "Work", href: withBase("/projects"), match: "/projects" },
+  { label: "Notes", href: withBase("/notes"), match: "/notes" },
+  { label: "About", href: withBase("/about"), match: "/about" },
+  { label: "Services", href: withBase("/work-with-me"), match: "/work-with-me" },
+  { label: "CV", href: withBase("/cv"), match: "/cv" },
+  { label: "Contact", href: withBase("/contact"), match: "/contact" },
+];
+const isActive = (match: string) =>
+  match === "/" ? path === "/" : path.startsWith(match);
+const resumeHref = settings.cvPdf || withBase("/cv");
+const resumeIsDownload = Boolean(settings.cvPdf);
+---
+
+<header
+  class="sticky top-0 z-[80] border-b border-line/80 bg-bg/90 backdrop-blur-md"
+  data-site-header
+>
+  <div class="shell flex h-16 items-center gap-6">
+    <a
+      href={withBase("/")}
+      class="group inline-flex shrink-0 items-baseline gap-0.5 font-mono text-[0.95rem] font-bold tracking-tight"
+      aria-label="Dipo Agboola — home"
+    >
+      <span class="text-ink">dipo</span><span class="text-accent">.dev</span>
+      <span
+        class="ml-1 inline-block h-2 w-2 translate-y-[-1px] bg-accent transition-transform group-hover:scale-125"
+        aria-hidden="true"></span>
+    </a>
+
+    <nav aria-label="Primary" class="hidden items-center gap-6 md:flex">
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            class="nav-link"
+            aria-current={isActive(item.match) ? "true" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="ml-auto flex items-center gap-2">
+      <a
+        class="btn btn-primary btn-sm hidden lg:inline-flex"
+        href={resumeHref}
+        data-resume-cta
+        {...(resumeIsDownload
+          ? { download: true, target: "_blank", rel: "noopener" }
+          : { title: "CV PDF not uploaded yet — opens the full CV page" })}
+        data-label="Resume"
+      >
+        <span aria-hidden="true" class="font-mono">↓</span>
+        {resumeIsDownload ? "Download Resume" : "View CV"}
+      </a>
+      <button
+        type="button"
+        class="inline-flex h-10 w-10 items-center justify-center border border-line md:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-menu-toggle
+      >
+        <span class="sr-only">Open menu</span>
+        <Menu class="h-5 w-5" data-menu-open-icon />
+        <X class="hidden h-5 w-5" data-menu-close-icon />
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-nav" class="hidden border-t border-line md:hidden" data-mobile-nav>
+    <nav aria-label="Mobile" class="shell flex flex-col py-3">
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isActive(item.match) ? "true" : undefined}
+            class:list={[
+              "border-b border-line/60 py-3 font-mono text-sm uppercase tracking-[0.12em] last:border-0",
+              isActive(item.match) ? "text-accent" : "text-muted",
+            ]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        class="btn btn-primary mt-4 self-start"
+        href={resumeHref}
+        {...(resumeIsDownload
+          ? { download: true, target: "_blank", rel: "noopener" }
+          : {})}
+      >
+        {resumeIsDownload ? "Download Resume" : "View CV"}
+      </a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const initHeader = () => {
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    if (!header || header.dataset.ready === "true") return;
+    header.dataset.ready = "true";
+
+    const toggle = header.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+    const mobile = header.querySelector<HTMLElement>("[data-mobile-nav]");
+    const openIcon = header.querySelector<HTMLElement>("[data-menu-open-icon]");
+    const closeIcon = header.querySelector<HTMLElement>("[data-menu-close-icon]");
+    const resume = header.querySelector<HTMLElement>("[data-resume-cta]");
+
+    const closeMenu = () => {
+      mobile?.classList.add("hidden");
+      toggle?.setAttribute("aria-expanded", "false");
+      openIcon?.classList.remove("hidden");
+      closeIcon?.classList.add("hidden");
+    };
+
+    toggle?.addEventListener("click", () => {
+      const isOpen = toggle.getAttribute("aria-expanded") === "true";
+      if (isOpen) {
+        closeMenu();
+      } else {
+        mobile?.classList.remove("hidden");
+        toggle.setAttribute("aria-expanded", "true");
+        openIcon?.classList.add("hidden");
+        closeIcon?.classList.remove("hidden");
+      }
+    });
+
+    mobile?.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+
+    if (resume) {
+      const updateResume = () => {
+        const show = window.scrollY > 80;
+        resume.classList.toggle("hidden", !show);
+      };
+      updateResume();
+      window.addEventListener("scroll", updateResume, { passive: true });
+    }
+  };
+
+  initHeader();
+  document.addEventListener("astro:page-load", initHeader);
+</script>

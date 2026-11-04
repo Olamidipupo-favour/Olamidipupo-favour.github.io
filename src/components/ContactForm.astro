@@ -1,0 +1,204 @@
+---
+import { Send } from "lucide-astro";
+import type { SiteSettings } from "@/lib/types";
+import { apiBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+}
+const { settings } = Astro.props;
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const hasApi = Boolean(apiBase);
+---
+
+<form class="space-y-5" data-contact-form data-api-base={apiBase} novalidate>
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label class="label" for="contact-name">Name</label>
+      <input
+        class="input"
+        id="contact-name"
+        name="name"
+        type="text"
+        autocomplete="name"
+        required
+        maxlength="100"
+        placeholder="Ada Lovelace"
+      />
+    </div>
+    <div>
+      <label class="label" for="contact-email">Email</label>
+      <input
+        class="input"
+        id="contact-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        maxlength="200"
+        placeholder="you@company.com"
+      />
+    </div>
+  </div>
+
+  <div>
+    <label class="label" for="contact-kind">What is this about?</label>
+    <select class="input" id="contact-kind" name="kind">
+      <option value="role">A remote backend role</option>
+      <option value="freelance">A freelance project</option>
+      <option value="other">Something else</option>
+    </select>
+  </div>
+
+  <div>
+    <label class="label" for="contact-message">Message</label>
+    <textarea
+      class="input min-h-36 resize-y"
+      id="contact-message"
+      name="message"
+      required
+      minlength="10"
+      maxlength="5000"
+      placeholder="What are you building, and where does the backend hurt?"
+    ></textarea>
+    <p class="mt-1.5 font-mono text-[0.6rem] text-muted">
+      Minimum 10 characters. Please do not send passwords or secrets.
+    </p>
+  </div>
+
+  <div class="hidden" aria-hidden="true">
+    <label for="contact-website">Website</label>
+    <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  {
+    turnstileKey && hasApi && (
+      <div>
+        <div
+          class="cf-turnstile"
+          data-turnstile
+          data-sitekey={turnstileKey}
+          data-action="contact"
+          data-theme="auto"
+        />
+      </div>
+    )
+  }
+
+  <div class="flex flex-wrap items-center gap-4">
+    <button type="submit" class="btn btn-primary" data-submit>
+      Send message <Send class="h-4 w-4" aria-hidden="true" />
+    </button>
+    <p class="font-mono text-[0.6rem] text-muted">
+      {hasApi
+        ? "Protected by Turnstile. Your address is only used to reply."
+        : "Preview mode: this opens your email app instead of the Worker."}
+    </p>
+  </div>
+
+  <p
+    class="min-h-6 font-mono text-xs leading-5"
+    data-contact-status
+    role="status"
+    aria-live="polite"
+  ></p>
+
+  <input type="hidden" name="emailTo" value={settings.email} />
+</form>
+
+<script>
+  import { loadTurnstile, type TurnstileApi } from "@/lib/turnstile";
+
+  const initContact = () => {
+    const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+    if (!form || form.dataset.ready === "true") return;
+    form.dataset.ready = "true";
+
+    const status = form.querySelector<HTMLElement>("[data-contact-status]");
+    const submit = form.querySelector<HTMLButtonElement>("[data-submit]");
+    const widget = form.querySelector<HTMLElement>("[data-turnstile]");
+    const api = form.dataset.apiBase ?? "";
+    let widgetId: string | undefined;
+    let turnstile: TurnstileApi | null = null;
+
+    const setStatus = (message: string, tone: "ok" | "error" | "muted" = "muted") => {
+      if (!status) return;
+      status.textContent = message;
+      status.className =
+        "min-h-6 font-mono text-xs leading-5 " +
+        (tone === "ok" ? "text-accent" : tone === "error" ? "text-danger" : "text-muted");
+    };
+
+    if (widget && api) {
+      loadTurnstile()
+        .then((instance) => {
+          turnstile = instance;
+          if (!instance) throw new Error("Turnstile unavailable");
+          widgetId = instance.render(widget, {
+            sitekey: widget.dataset.sitekey,
+            action: widget.dataset.action,
+            theme: "auto",
+          });
+        })
+        .catch(() => {
+          setStatus(
+            "Spam protection could not load. Turn off strict blockers or email me directly.",
+            "error",
+          );
+        });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+      const honey = String(data.get("website") ?? "");
+      if (honey) return; // Bots fill the hidden field.
+
+      const name = String(data.get("name") ?? "").trim();
+      const email = String(data.get("email") ?? "").trim();
+      const kind = String(data.get("kind") ?? "other");
+      const message = String(data.get("message") ?? "").trim();
+
+      if (!api) {
+        const subject = encodeURIComponent(`[${kind}] Hello from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+        window.location.href = `mailto:${form.querySelector<HTMLInputElement>('input[name="emailTo"]')?.value ?? ""}?subject=${subject}&body=${body}`;
+        setStatus("Opening your email app. If nothing happens, use the address on this page.", "muted");
+        return;
+      }
+
+      const token = turnstile?.getResponse(widgetId) ?? "";
+      if (widget && !token) {
+        setStatus("Please complete the spam check first.", "error");
+        return;
+      }
+
+      submit?.setAttribute("disabled", "true");
+      setStatus("Sending…");
+
+      try {
+        const response = await fetch(`${api.replace(/\/$/, "")}/api/contact`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, kind, message, turnstileToken: token }),
+        });
+        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+        if (!response.ok) throw new Error(payload.error || "Something went wrong.");
+        form.reset();
+        turnstile?.reset(widgetId);
+        setStatus("Message sent. I usually reply within two working days.", "ok");
+      } catch (error) {
+        setStatus(
+          error instanceof Error ? error.message : "Could not send. Email me directly.",
+          "error",
+        );
+      } finally {
+        submit?.removeAttribute("disabled");
+      }
+    });
+  };
+
+  initContact();
+  document.addEventListener("astro:page-load", initContact);
+</script>

@@ -1,0 +1,22 @@
+<script is:inline>
+  (function () {
+    try {
+      var stored = localStorage.getItem("dipo-theme");
+      var theme =
+        stored === "ink" || stored === "amber" || stored === "light"
+          ? stored
+          : window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "ink";
+      document.documentElement.dataset.theme = theme;
+      if (localStorage.getItem("dipo-shonen") === "true") {
+        document.documentElement.dataset.shonen = "true";
+      }
+      if (localStorage.getItem("dipo-sound") === "on") {
+        document.documentElement.dataset.sound = "on";
+      }
+    } catch (_) {
+      document.documentElement.dataset.theme = "ink";
+    }
+  })();
+</script>

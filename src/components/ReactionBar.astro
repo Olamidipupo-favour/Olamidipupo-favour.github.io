@@ -1,0 +1,134 @@
+---
+import type { SiteSettings } from "@/lib/types";
+import { apiBase } from "@/lib/utils";
+
+interface Props {
+  slug: string;
+  settings: SiteSettings;
+}
+const { slug, settings } = Astro.props;
+const reactions = [
+  { type: "fire", emoji: "🔥", label: "Fire" },
+  { type: "brain", emoji: "🧠", label: "Big brain" },
+  { type: "ship", emoji: "🚀", label: "Ship it" },
+  { type: "clap", emoji: "👏", label: "Respect" },
+];
+---
+
+<div
+  class="border-y border-line py-5"
+  data-reactions
+  data-slug={slug}
+  data-api={apiBase}
+  data-email={settings.email}
+>
+  <div class="flex flex-wrap items-center gap-3">
+    <p class="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-muted">
+      Reactions
+    </p>
+    <div class="flex flex-wrap gap-2" data-reaction-buttons>
+      {
+        reactions.map((reaction) => (
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 border border-line px-2.5 py-1 text-sm transition-colors hover:border-accent aria-pressed:border-accent aria-pressed:bg-accent/10"
+            data-reaction={reaction.type}
+            aria-label={`React with ${reaction.label}`}
+            aria-pressed="false"
+          >
+            <span aria-hidden="true">{reaction.emoji}</span>
+            <span class="font-mono text-[0.66rem] tabular-nums text-muted" data-count>
+              0
+            </span>
+          </button>
+        ))
+      }
+    </div>
+    <p class="font-mono text-[0.58rem] text-muted" data-reaction-status></p>
+  </div>
+</div>
+
+<script>
+  const initReactions = () => {
+    const root = document.querySelector<HTMLElement>("[data-reactions]");
+    if (!root || root.dataset.ready === "true") return;
+    root.dataset.ready = "true";
+
+    const api = (root.dataset.api ?? "").replace(/\/$/, "");
+    const slug = root.dataset.slug ?? "";
+    const status = root.querySelector<HTMLElement>("[data-reaction-status]");
+    const buttons = Array.from(
+      root.querySelectorAll<HTMLButtonElement>("[data-reaction]"),
+    );
+    const storageKey = `dipo-reactions:${slug}`;
+    let reacted: string[] = [];
+    try {
+      reacted = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
+    } catch {
+      reacted = [];
+    }
+
+    const mark = () => {
+      buttons.forEach((button) => {
+        const type = button.dataset.reaction ?? "";
+        const done = reacted.includes(type);
+        button.setAttribute("aria-pressed", String(done));
+        button.disabled = done;
+        button.title = done ? "You already reacted on this device" : "";
+      });
+    };
+
+    const setCounts = (counts: Record<string, number>) => {
+      buttons.forEach((button) => {
+        const node = button.querySelector<HTMLElement>("[data-count]");
+        if (node) node.textContent = String(counts[button.dataset.reaction ?? ""] ?? 0);
+      });
+    };
+
+    mark();
+
+    if (!api) {
+      mark();
+      if (status) status.textContent = "Reactions need the Worker; not configured in preview.";
+      return;
+    }
+
+    fetch(`${api}/api/reactions?slug=${encodeURIComponent(slug)}`)
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((data: { counts?: Record<string, number> }) => {
+        setCounts(data.counts ?? {});
+        if (status) status.textContent = "";
+      })
+      .catch(() => {
+        if (status) status.textContent = "Reactions are offline right now.";
+      });
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const type = button.dataset.reaction ?? "";
+        if (reacted.includes(type)) return;
+        button.disabled = true;
+        try {
+          const response = await fetch(`${api}/api/reactions`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slug, type }),
+          });
+          if (!response.ok) throw new Error();
+          const data = (await response.json()) as { counts?: Record<string, number> };
+          setCounts(data.counts ?? {});
+          reacted = [...reacted, type];
+          localStorage.setItem(storageKey, JSON.stringify(reacted));
+          mark();
+          if (status) status.textContent = "Noted. Thanks.";
+        } catch {
+          button.disabled = false;
+          if (status) status.textContent = "Could not save that reaction. Try again later.";
+        }
+      });
+    });
+  };
+
+  initReactions();
+  document.addEventListener("astro:page-load", initReactions);
+</script>

@@ -1,0 +1,97 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ContactForm from "@/components/ContactForm.astro";
+import { getContent } from "@/lib/content";
+import { ArrowUpRight, Mail } from "lucide-astro";
+import { statusLabels } from "@/lib/utils";
+
+const content = await getContent();
+const { settings } = content;
+---
+
+<BaseLayout
+  content={content}
+  title="Contact"
+  description="Tell me about the backend problem, the role or the project. Email and social links — no phone number, no home address."
+  ogSlug="contact"
+>
+  <div class="shell py-14 sm:py-20">
+    <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <div>
+        <p class="chapter-kicker">Chapter 06 · Contact</p>
+        <h1 class="chapter-title mt-2 text-4xl sm:text-6xl">Let's make it real.</h1>
+        <p class="mt-4 max-w-prose text-base leading-7 text-muted">
+          Recruiter, founder or fellow engineer: tell me what you are building
+          and where the backend hurts. I read everything and reply to real
+          enquiries within two working days.
+        </p>
+
+        <div class="mt-6 flex flex-wrap items-center gap-3">
+          <span class="inline-flex items-center gap-2 border border-accent/60 px-2.5 py-1 font-mono text-[0.64rem] uppercase tracking-[0.12em] text-accent">
+            <span class="h-2 w-2 animate-flicker rounded-full bg-accent" aria-hidden="true"></span>
+            {statusLabels[settings.availability.status]}
+          </span>
+          <span class="font-mono text-[0.62rem] text-muted">{settings.availability.text}</span>
+        </div>
+
+        <div class="mt-8 border-2 border-ink bg-surface p-5 sm:p-7">
+          <ContactForm settings={settings} />
+        </div>
+      </div>
+
+      <aside class="space-y-6">
+        <div class="border-2 border-line p-6">
+          <h2 class="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted">Direct</h2>
+          <a
+            class="mt-3 flex items-center gap-2 break-all font-mono text-sm text-accent hover:underline"
+            href={`mailto:${settings.email}`}
+          >
+            <Mail class="h-4 w-4 shrink-0" aria-hidden="true" />
+            {settings.email}
+          </a>
+          <ul class="mt-4 space-y-2 border-t border-line pt-4">
+            {
+              settings.socials.map((social) => (
+                <li>
+                  <a
+                    class="flex items-center justify-between gap-4 font-mono text-xs text-muted hover:text-accent"
+                    href={social.url}
+                    target="_blank"
+                    rel="me noopener noreferrer"
+                  >
+                    {social.label}
+                    <ArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="halftone border border-line p-6">
+          <h2 class="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted">What happens next</h2>
+          <ol class="mt-4 space-y-3 text-sm leading-6">
+            <li class="flex gap-3">
+              <span class="font-mono text-accent">01</span>
+              <span>I read the message and check whether I am the right person.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="font-mono text-accent">02</span>
+              <span>If yes, we book a short call or continue by email.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="font-mono text-accent">03</span>
+              <span>You get a clear scope, timeline and price before work starts.</span>
+            </li>
+          </ol>
+        </div>
+
+        <p class="border-l-2 border-line pl-4 font-mono text-[0.62rem] leading-5 text-muted">
+          Privacy, briefly: the contact form sends your name, email and message
+          to my inbox. No newsletter, no ad tracking. This site publishes no
+          phone number or home address.
+        </p>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

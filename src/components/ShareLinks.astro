@@ -1,0 +1,104 @@
+---
+import { Check, Copy, Linkedin, Share2, Twitter } from "lucide-astro";
+
+interface Props {
+  title: string;
+  url: string;
+}
+const { title, url } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+---
+
+<div class="flex flex-wrap items-center gap-2" data-share>
+  <span class="mr-1 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-muted">
+    Share
+  </span>
+  <button
+    type="button"
+    class="inline-flex h-9 items-center gap-1.5 border border-line px-2.5 font-mono text-[0.62rem] text-muted hover:border-accent hover:text-accent"
+    data-share-copy
+    data-url={url}
+  >
+    <Copy class="h-3.5 w-3.5" aria-hidden="true" data-copy-icon />
+    <Check class="hidden h-3.5 w-3.5" aria-hidden="true" data-check-icon />
+    <span data-copy-label>Copy link</span>
+  </button>
+  <a
+    class="inline-flex h-9 w-9 items-center justify-center border border-line text-muted hover:border-accent hover:text-accent"
+    href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Share on X"
+  >
+    <Twitter class="h-3.5 w-3.5" aria-hidden="true" />
+  </a>
+  <a
+    class="inline-flex h-9 w-9 items-center justify-center border border-line text-muted hover:border-accent hover:text-accent"
+    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Share on LinkedIn"
+  >
+    <Linkedin class="h-3.5 w-3.5" aria-hidden="true" />
+  </a>
+  <button
+    type="button"
+    class="inline-flex h-9 items-center gap-1.5 border border-line px-2.5 font-mono text-[0.62rem] text-muted hover:border-accent hover:text-accent"
+    data-share-native
+    hidden
+  >
+    <Share2 class="h-3.5 w-3.5" aria-hidden="true" />
+    Share
+  </button>
+  <span class="sr-only" role="status" aria-live="polite" data-share-status></span>
+</div>
+
+<script>
+  const initShare = () => {
+    const root = document.querySelector<HTMLElement>("[data-share]");
+    if (!root || root.dataset.ready === "true") return;
+    root.dataset.ready = "true";
+
+    const copy = root.querySelector<HTMLButtonElement>("[data-share-copy]");
+    const native = root.querySelector<HTMLButtonElement>("[data-share-native]");
+    const status = root.querySelector<HTMLElement>("[data-share-status]");
+    const label = root.querySelector<HTMLElement>("[data-copy-label]");
+    const copyIcon = root.querySelector<HTMLElement>("[data-copy-icon]");
+    const checkIcon = root.querySelector<HTMLElement>("[data-check-icon]");
+
+    if (native && "share" in navigator) native.removeAttribute("hidden");
+
+    copy?.addEventListener("click", async () => {
+      const url = copy.dataset.url ?? window.location.href;
+      try {
+        await navigator.clipboard.writeText(url);
+        if (status) status.textContent = "Link copied.";
+        if (label) label.textContent = "Copied";
+        copyIcon?.classList.add("hidden");
+        checkIcon?.classList.remove("hidden");
+        window.setTimeout(() => {
+          if (label) label.textContent = "Copy link";
+          copyIcon?.classList.remove("hidden");
+          checkIcon?.classList.add("hidden");
+        }, 1800);
+      } catch {
+        if (status) status.textContent = "Copy failed. Use the address bar.";
+      }
+    });
+
+    native?.addEventListener("click", async () => {
+      try {
+        await navigator.share({
+          title: document.title,
+          url: window.location.href,
+        });
+      } catch {
+        // Visitor cancelled; nothing to do.
+      }
+    });
+  };
+
+  initShare();
+  document.addEventListener("astro:page-load", initShare);
+</script>

@@ -1,0 +1,137 @@
+---
+import EmptyState from "@/components/EmptyState.astro";
+import PostCard from "@/components/PostCard.astro";
+import type { Post } from "@/lib/types";
+
+interface Props {
+  posts: Post[];
+}
+const { posts } = Astro.props;
+---
+
+{
+  posts.length === 0 ? (
+    <EmptyState
+      kicker="Notes"
+      title="The notebook is open."
+      body="Nothing published yet. Technical notes, med-school notes and the occasional argument about fundamentals will land here. Subscribe to the RSS feed and you will know first."
+      href="/rss.xml"
+      linkLabel="Subscribe via RSS"
+    />
+  ) : (
+    <div data-notes-index>
+      <div class="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-4">
+        <p class="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted">
+          <span data-notes-count>{posts.length}</span> notes
+        </p>
+        <div class="flex items-center gap-3" data-notes-controls hidden>
+          <label
+            for="notes-sort"
+            class="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-muted"
+            >Sort</label
+          >
+          <select
+            id="notes-sort"
+            data-notes-sort
+            class="border border-line bg-bg px-2 py-1.5 font-mono text-[0.68rem] text-ink focus:border-accent focus:outline-none"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-8 space-y-8" data-notes-list>
+        {posts.map((post, index) => <PostCard post={post} index={index} />)}
+      </div>
+
+      <nav
+        class="mt-10 flex items-center justify-between gap-4 border-t border-line pt-5"
+        data-notes-pagination
+        aria-label="Notes pagination"
+        hidden
+      >
+        <button type="button" class="btn btn-sm" data-notes-prev>← Newer</button>
+        <p class="font-mono text-[0.62rem] uppercase tracking-wider text-muted">
+          page <span data-notes-page>1</span> / <span data-notes-pages>1</span>
+        </p>
+        <button type="button" class="btn btn-sm" data-notes-next>Older →</button>
+      </nav>
+    </div>
+  )
+}
+
+<script>
+  const initNotes = () => {
+    const index = document.querySelector<HTMLElement>("[data-notes-index]");
+    if (!index || index.dataset.ready === "true") return;
+    index.dataset.ready = "true";
+
+    const list = index.querySelector<HTMLElement>("[data-notes-list]");
+    const sort = index.querySelector<HTMLSelectElement>("[data-notes-sort]");
+    const controls = index.querySelector<HTMLElement>("[data-notes-controls]");
+    const pagination = index.querySelector<HTMLElement>("[data-notes-pagination]");
+    const prev = index.querySelector<HTMLButtonElement>("[data-notes-prev]");
+    const next = index.querySelector<HTMLButtonElement>("[data-notes-next]");
+    const pageNode = index.querySelector<HTMLElement>("[data-notes-page]");
+    const pagesNode = index.querySelector<HTMLElement>("[data-notes-pages]");
+    const countNode = index.querySelector<HTMLElement>("[data-notes-count]");
+    if (!list) return;
+
+    const perPage = 6;
+    let page = 1;
+    let total = 1;
+
+    const cards = () =>
+      Array.from(list.querySelectorAll<HTMLElement>("[data-note]"));
+
+    const apply = () => {
+      const cardsList = cards();
+      total = Math.max(1, Math.ceil(cardsList.length / perPage));
+      page = Math.min(page, total);
+      cardsList.forEach((card, position) => {
+        card.hidden =
+          position < (page - 1) * perPage || position >= page * perPage;
+      });
+      if (pageNode) pageNode.textContent = String(page);
+      if (pagesNode) pagesNode.textContent = String(total);
+      if (prev) prev.disabled = page === 1;
+      if (next) next.disabled = page === total;
+      pagination?.toggleAttribute("hidden", total <= 1);
+      if (countNode) countNode.textContent = String(cardsList.length);
+    };
+
+    const sortCards = () => {
+      const mode = sort?.value ?? "newest";
+      const sorted = cards().sort((a, b) => {
+        if (mode === "title")
+          return (a.dataset.title ?? "").localeCompare(b.dataset.title ?? "");
+        const aDate = new Date(a.dataset.date ?? 0).getTime();
+        const bDate = new Date(b.dataset.date ?? 0).getTime();
+        return mode === "oldest" ? aDate - bDate : bDate - aDate;
+      });
+      sorted.forEach((card) => list.appendChild(card));
+      page = 1;
+      apply();
+    };
+
+    controls?.removeAttribute("hidden");
+    sort?.addEventListener("change", sortCards);
+    prev?.addEventListener("click", () => {
+      page = Math.max(1, page - 1);
+      apply();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    next?.addEventListener("click", () => {
+      page = Math.min(total, page + 1);
+      apply();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    apply();
+  };
+
+  initNotes();
+  document.addEventListener("astro:page-load", initNotes);
+</script>

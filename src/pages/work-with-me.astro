@@ -1,0 +1,157 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ServiceCard from "@/components/ServiceCard.astro";
+import EmptyState from "@/components/EmptyState.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import { getContent } from "@/lib/content";
+import { withBase } from "@/lib/utils";
+import { ArrowUpRight, MessageSquare, Ruler, Wrench, PackageCheck } from "lucide-astro";
+
+const content = await getContent();
+const { settings, services } = content;
+const sorted = [...services].sort((a, b) => a.order - b.order);
+
+const process = [
+  {
+    icon: MessageSquare,
+    title: "Tell me what hurts",
+    body: "A slow endpoint, a migration you are dreading, a service that pages the team at night. A short call and a clear problem statement.",
+  },
+  {
+    icon: Ruler,
+    title: "Scope it properly",
+    body: "I write down the constraint, the smallest safe change, the risks and what done looks like. No mystery invoices.",
+  },
+  {
+    icon: Wrench,
+    title: "Build in small slices",
+    body: "Working software early, reviewed as it lands. Tests around the risky parts. You can see progress without asking.",
+  },
+  {
+    icon: PackageCheck,
+    title: "Handover, not dependency",
+    body: "Docs, runbook, and a walkthrough so your team can own it. I do not build black boxes.",
+  },
+];
+---
+
+<BaseLayout
+  content={content}
+  title="Work With Me"
+  description="Backend engineering for teams that need APIs, data and infrastructure to behave. Remote roles and select freelance projects."
+  ogSlug="work-with-me"
+>
+  <div class="shell py-14 sm:py-20">
+    <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+      <div>
+        <p class="chapter-kicker">Chapter 05 · Work with me</p>
+        <h1 class="chapter-title mt-2 text-4xl sm:text-6xl">
+          Backends that behave. No long story.
+        </h1>
+        <p class="mt-5 max-w-prose text-base leading-7 text-muted">
+          I help teams ship and stabilise backend systems: APIs, auth, data
+          models, background jobs and the infrastructure around them. I am
+          equally at home joining a team for a remote role or taking a scoped
+          freelance project.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <a class="btn btn-primary" href={withBase("/contact")}>
+            Tell me the problem <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+          </a>
+          <a class="btn" href={withBase("/projects")}>See the work</a>
+        </div>
+      </div>
+
+      <aside class="border-2 border-line bg-surface p-6">
+        <p class="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-accent">Good fit</p>
+        <ul class="mt-3 space-y-2 text-sm leading-6 text-muted">
+          <li>Python, Go, Node/NestJS, Postgres and Docker.</li>
+          <li>A backend that needs a cleaner schema, faster queries or calmer on-call.</li>
+          <li>A team that wants code review and fundamentals, not heroics.</li>
+          <li>Remote, async-friendly, overlapping with WAT.</li>
+        </ul>
+        <p class="mt-5 border-t border-line pt-4 font-mono text-[0.6rem] leading-5 text-muted">
+          Not a fit: rush jobs with no scope, or projects that need me to lie
+          about benchmarks.
+        </p>
+      </aside>
+    </div>
+
+    <section class="mt-20">
+      <SectionHeading
+        chapter="01"
+        title="What I can take on"
+        description="Services are managed in the CMS. When nothing is published, this section stays honest instead of inventing packages."
+      />
+      {
+        sorted.length > 0 ? (
+          <div class="mt-8 grid gap-5 md:grid-cols-2">
+            {sorted.map((service, index) => (
+              <ServiceCard service={service} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div class="mt-8">
+            <EmptyState
+              kicker="Services"
+              title="Packages are being written."
+              body="I am not going to invent service tiers on your screen. Tell me what you need and I will scope it directly — that is usually faster than a menu anyway."
+              href="/contact"
+              linkLabel="Describe the project"
+            />
+          </div>
+        )
+      }
+    </section>
+
+    <section class="mt-20">
+      <SectionHeading
+        chapter="02"
+        title="How it runs"
+        description="Boring, predictable, and designed so you are not dependent on me at the end."
+      />
+      <ol class="mt-8 grid gap-4 sm:grid-cols-2">
+        {
+          process.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <li class="border border-line bg-surface p-6">
+                <div class="flex items-center justify-between">
+                  <Icon class="h-6 w-6 text-accent" aria-hidden="true" />
+                  <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">
+                    0{index + 1}
+                  </span>
+                </div>
+                <h3 class="mt-4 font-display text-xl font-black italic">{step.title}</h3>
+                <p class="mt-2 text-sm leading-6 text-muted">{step.body}</p>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </section>
+
+    <section class="mt-20 grid gap-8 border-t-2 border-ink pt-8 lg:grid-cols-2">
+      <div>
+        <h2 class="font-display text-3xl font-black italic">How to start</h2>
+        <p class="mt-3 max-w-prose text-sm leading-6 text-muted">
+          Send me a short message: what you are building, where the backend
+          hurts, and the timeline you are working with. A link to the repo or a
+          failing endpoint is welcome. I reply to real enquiries within two
+          working days.
+        </p>
+        <a class="btn btn-primary mt-5" href={withBase("/contact")}>Open the contact form</a>
+      </div>
+      <div class="border-l-0 border-line lg:border-l lg:pl-8">
+        <h2 class="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted">Prefer email?</h2>
+        <a class="mt-2 block break-all font-mono text-sm text-accent hover:underline" href={`mailto:${settings.email}`}>
+          {settings.email}
+        </a>
+        <p class="mt-4 text-sm leading-6 text-muted">
+          No phone number and no home address on this site, by design. Email is
+          the fastest way in.
+        </p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

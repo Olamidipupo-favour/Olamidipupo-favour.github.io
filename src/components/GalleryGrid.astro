@@ -1,0 +1,134 @@
+---
+import EmptyState from "@/components/EmptyState.astro";
+import type { GalleryItem } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
+
+interface Props {
+  items: GalleryItem[];
+}
+const { items } = Astro.props;
+
+const years = Array.from(
+  new Set(items.map((item) => item.date?.slice(0, 4)).filter(Boolean)),
+).sort((a, b) => Number(b) - Number(a));
+---
+
+{
+  items.length === 0 ? (
+    <EmptyState
+      kicker="Gallery"
+      title="No frames developed yet."
+      body="Photos, screenshots and off-duty frames will live here. The CMS is wired and waiting — the grid stays empty rather than borrowing stock imagery."
+      href="/contact"
+      linkLabel="Say hello instead"
+    />
+  ) : (
+    <div data-gallery>
+      <div
+        class="flex flex-wrap items-center gap-2"
+        role="group"
+        aria-label="Filter gallery by year"
+      >
+        <button
+          type="button"
+          class="border border-accent px-3 py-1 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-accent"
+          data-gallery-filter="all"
+          aria-pressed="true"
+        >
+          All
+        </button>
+        {years.map((year) => (
+          <button
+            type="button"
+            class="border border-line px-3 py-1 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-muted hover:border-accent hover:text-accent aria-pressed:border-accent aria-pressed:text-accent"
+            data-gallery-filter={year}
+            aria-pressed="false"
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+
+      <ul class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-gallery-grid>
+        {items.map((item) => (
+          <li
+            class="group border-2 border-line bg-surface"
+            data-gallery-item
+            data-year={item.date?.slice(0, 4)}
+          >
+            {item.image?.url ? (
+              <img
+                src={item.image.url}
+                alt={item.image.alt || item.caption}
+                width={item.image.width ?? 800}
+                height={item.image.height ?? 600}
+                loading="lazy"
+                decoding="async"
+                class="aspect-[4/3] w-full border-b border-line object-cover transition-transform duration-300 group-hover:scale-[1.015]"
+              />
+            ) : (
+              <div class="halftone flex aspect-[4/3] items-center justify-center border-b border-line bg-raised">
+                <span class="font-mono text-[0.62rem] uppercase tracking-wider text-muted">
+                  image pending
+                </span>
+              </div>
+            )}
+            <div class="p-4">
+              <p class="text-sm leading-6">{item.caption}</p>
+              <p class="mt-2 font-mono text-[0.58rem] uppercase tracking-wider text-muted">
+                {formatDate(item.date)}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <p
+        class="mt-6 hidden border border-dashed border-line p-6 text-center font-mono text-xs text-muted"
+        data-gallery-empty
+      >
+        No frames in this year. Try another filter.
+      </p>
+    </div>
+  )
+}
+
+<script>
+  const initGallery = () => {
+    const gallery = document.querySelector<HTMLElement>("[data-gallery]");
+    if (!gallery || gallery.dataset.ready === "true") return;
+    gallery.dataset.ready = "true";
+
+    const buttons = Array.from(
+      gallery.querySelectorAll<HTMLButtonElement>("[data-gallery-filter]"),
+    );
+    const items = Array.from(
+      gallery.querySelectorAll<HTMLElement>("[data-gallery-item]"),
+    );
+    const empty = gallery.querySelector<HTMLElement>("[data-gallery-empty]");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.galleryFilter ?? "all";
+        buttons.forEach((candidate) => {
+          const active = candidate === button;
+          candidate.setAttribute("aria-pressed", String(active));
+          candidate.classList.toggle("border-accent", active);
+          candidate.classList.toggle("text-accent", active);
+          candidate.classList.toggle("border-line", !active);
+          candidate.classList.toggle("text-muted", !active);
+        });
+        let visible = 0;
+        items.forEach((item) => {
+          const show = filter === "all" || item.dataset.year === filter;
+          item.hidden = !show;
+          if (show) visible += 1;
+        });
+        empty?.toggleAttribute("hidden", visible > 0);
+      });
+    });
+  };
+
+  initGallery();
+  document.addEventListener("astro:page-load", initGallery);
+</script>

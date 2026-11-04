@@ -1,0 +1,112 @@
+---
+import type { SiteSettings } from "@/lib/types";
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+}
+const { settings } = Astro.props;
+---
+
+<dialog class="modal" data-cv-modal aria-labelledby="cv-modal-title">
+  <div class="modal-panel" data-cv-panel>
+    <button
+      type="button"
+      class="modal-close"
+      data-close-cv
+      aria-label="Close CV dialog"
+    >
+      ×
+    </button>
+
+    <p class="chapter-kicker">Curriculum vitae</p>
+    <h2 id="cv-modal-title" class="chapter-title mt-1">
+      Dipo, on paper.
+    </h2>
+    <p class="mt-4 max-w-prose text-sm leading-6 text-muted">
+      Backend engineer. Python, Go, Node/NestJS, Postgres, Docker and
+      Kubernetes. MBBS student at OAU. Available for remote backend roles and
+      select freelance work.
+    </p>
+
+    <dl class="mt-6 grid grid-cols-2 gap-3 font-mono text-xs">
+      <div class="border border-line p-3">
+        <dt class="text-muted uppercase tracking-wider">Uptime</dt>
+        <dd class="mt-1 text-lg font-bold text-accent">99.95%</dd>
+      </div>
+      <div class="border border-line p-3">
+        <dt class="text-muted uppercase tracking-wider">Active users</dt>
+        <dd class="mt-1 text-lg font-bold text-ink">10,000+</dd>
+      </div>
+    </dl>
+
+    <div class="mt-7 flex flex-wrap items-center gap-3">
+      {
+        settings.cvPdf ? (
+          <a
+            class="btn btn-primary"
+            href={settings.cvPdf}
+            download
+            target="_blank"
+            rel="noopener"
+          >
+            Download PDF
+          </a>
+        ) : (
+          <button
+            type="button"
+            class="btn cursor-not-allowed opacity-55"
+            disabled
+            title="Upload the CV PDF in Sanity first"
+          >
+            Download PDF
+          </button>
+        )
+      }
+      <a class="btn" href={withBase("/cv")}>Full page</a>
+      <a class="font-mono text-xs text-muted underline hover:text-accent" href={withBase("/contact")}>
+        or email me
+      </a>
+    </div>
+    {
+      !settings.cvPdf && (
+        <p class="mt-4 border-l-2 border-accent pl-3 font-mono text-[0.68rem] leading-5 text-muted">
+          [PLACEHOLDER] Upload the CV PDF in Sanity site settings. The old PDF
+          is intentionally not published.
+        </p>
+      )
+    }
+  </div>
+</dialog>
+
+<script>
+  const initCvModal = () => {
+    const modal = document.querySelector<HTMLDialogElement>("[data-cv-modal]");
+    if (!modal || modal.dataset.ready === "true") return;
+    modal.dataset.ready = "true";
+
+    const open = () => {
+      if (!modal.open) modal.showModal();
+      modal.querySelector<HTMLButtonElement>("[data-close-cv]")?.focus();
+    };
+    const close = () => modal.close();
+
+    document.querySelectorAll("[data-open-cv]").forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        open();
+      });
+    });
+
+    modal.querySelectorAll("[data-close-cv]").forEach((button) => {
+      button.addEventListener("click", close);
+    });
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) close();
+    });
+  };
+
+  initCvModal();
+  document.addEventListener("astro:page-load", initCvModal);
+</script>

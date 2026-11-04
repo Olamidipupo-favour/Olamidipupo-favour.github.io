@@ -1,0 +1,41 @@
+---
+import type { SiteSettings } from "@/lib/types";
+import avatarPlaceholder from "@/assets/avatar-placeholder.svg";
+
+interface Props {
+  settings: SiteSettings;
+  size?: "sm" | "md" | "lg";
+  eager?: boolean;
+}
+
+const { settings, size = "md", eager = false } = Astro.props;
+const sizes = {
+  sm: "h-10 w-10",
+  md: "h-20 w-20",
+  lg: "h-44 w-44 sm:h-52 sm:w-52",
+};
+---
+
+{
+  settings.avatar?.url ? (
+    <img
+      src={settings.avatar.url}
+      alt={`${settings.name} — portrait`}
+      width={settings.avatar.width ?? 512}
+      height={settings.avatar.height ?? 512}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      class:list={[sizes[size], "border-2 border-ink object-cover"]}
+    />
+  ) : (
+    <img
+      src={avatarPlaceholder.src}
+      alt={`${settings.name} — pixel-art placeholder portrait`}
+      width="256"
+      height="256"
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      class:list={[sizes[size], "border-2 border-ink object-cover [image-rendering:pixelated]"]}
+    />
+  )
+}

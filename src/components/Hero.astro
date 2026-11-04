@@ -1,0 +1,149 @@
+---
+import { ArrowDown, ArrowUpRight, MapPin } from "lucide-astro";
+import Avatar from "@/components/Avatar.astro";
+import Mascot from "@/components/Mascot.astro";
+import type { SiteSettings } from "@/lib/types";
+import { statusLabels, withBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+}
+const { settings } = Astro.props;
+const isAvailable = settings.availability.status !== "closed";
+---
+
+<section id="hero" class="relative overflow-hidden border-b border-line">
+  <div class="speedlines pointer-events-none absolute inset-0" aria-hidden="true"></div>
+  <div
+    class="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-accent/10 blur-3xl"
+    aria-hidden="true"
+  ></div>
+
+  <div class="shell relative grid gap-12 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-10 lg:py-20">
+    <div>
+      <p class="chapter-kicker">Chapter 01 · The engineer</p>
+
+      <h1 class="mt-4 font-display text-[clamp(2.8rem,8vw,6.4rem)] font-black italic leading-[0.88] tracking-[-0.05em]">
+        <span class="sr-only">{settings.name}, backend engineer. </span>
+        No cursed<br />
+        energy.<br />
+        <span class="relative inline-block text-accent">
+          Just fundamentals.
+          <svg
+            class="absolute -bottom-2 left-0 h-3 w-full text-accent"
+            viewBox="0 0 300 12"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path d="M2 8C60 2 150 2 298 6" fill="none" stroke="currentColor" stroke-width="4"></path>
+          </svg>
+        </span>
+      </h1>
+
+      <p class="mt-6 max-w-xl text-base leading-7 text-muted sm:text-lg">
+        {settings.subline}
+      </p>
+
+      <div class="mt-7 flex flex-wrap items-center gap-3">
+        <span
+          class:list={[
+            "inline-flex items-center gap-2 border px-2.5 py-1 font-mono text-[0.66rem] uppercase tracking-[0.12em]",
+            isAvailable ? "border-accent/60 text-accent" : "border-line text-muted",
+          ]}
+        >
+          <span
+            class:list={[
+              "h-2 w-2 rounded-full",
+              isAvailable ? "animate-flicker bg-accent" : "bg-muted",
+            ]}
+            aria-hidden="true"
+          ></span>
+          {statusLabels[settings.availability.status]}
+        </span>
+        <span class="inline-flex items-center gap-1.5 font-mono text-[0.66rem] uppercase tracking-[0.1em] text-muted">
+          <MapPin class="h-3.5 w-3.5" aria-hidden="true" />
+          {settings.location} · remote-first
+        </span>
+      </div>
+      <p class="mt-2 max-w-xl font-mono text-[0.68rem] leading-5 text-muted/90">
+        {settings.availability.text}
+      </p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a class="btn btn-primary" href={withBase("/projects")}>
+          See the work <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+        </a>
+        <a class="btn" href={withBase("/work-with-me")}>Work with me</a>
+      </div>
+
+      <button
+        type="button"
+        class="terminal-window mt-9 flex w-full max-w-md items-center gap-2 px-3 py-2.5 text-left font-mono text-[0.7rem] text-muted transition-colors hover:border-accent hover:text-ink"
+        data-open-terminal
+        aria-label="Open interactive terminal"
+      >
+        <span class="text-accent">dipo@portfolio</span><span>:</span><span>~</span><span>$</span>
+        <span class="text-ink">whoami</span>
+        <span class="ml-auto inline-block h-4 w-2 animate-blink bg-accent" aria-hidden="true"></span>
+      </button>
+
+      <ul class="mt-5 flex flex-wrap gap-x-4 gap-y-1" aria-label="Social links">
+        {
+          settings.socials.map((social) => (
+            <li>
+              <a
+                class="font-mono text-[0.66rem] uppercase tracking-[0.12em] text-muted underline decoration-line underline-offset-4 hover:text-accent hover:decoration-accent"
+                href={social.url}
+                target="_blank"
+                rel="me noopener noreferrer"
+              >
+                {social.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+      <div class="absolute -left-4 -top-4 z-0 h-full w-full border-2 border-accent/50" aria-hidden="true"></div>
+      <div class="panel halftone relative z-10 overflow-hidden bg-surface">
+        <div class="flex items-center justify-between border-b-2 border-ink/80 px-4 py-2">
+          <span class="tag tag-accent">Active file</span>
+          <span class="font-mono text-[0.6rem] uppercase tracking-wider text-muted">dipo.dev / 001</span>
+        </div>
+
+        <div class="relative px-4 pb-8 pt-5">
+          <span
+            class="pointer-events-none absolute left-2 top-10 -rotate-6 font-display text-5xl font-black italic tracking-tighter text-ink/[0.06] sm:text-6xl"
+            aria-hidden="true">SHIP IT</span
+          >
+          <Mascot settings={settings} eager />
+          <div class="relative z-10 -mt-10 flex items-end justify-between gap-3">
+            <div class="rounded-full border-2 border-accent bg-bg p-1 shadow-glow">
+              <Avatar settings={settings} size="lg" eager />
+            </div>
+            <div class="mb-2 text-right">
+              <p class="font-mono text-[0.58rem] uppercase tracking-[0.18em] text-muted">
+                {settings.nowBuilding.startsWith("[PLACEHOLDER") ? "Currently" : "Now building"}
+              </p>
+              <p class="mt-1 max-w-[18ch] text-xs font-semibold leading-5 text-ink">
+                {settings.nowBuilding}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between border-t-2 border-ink/80 px-4 py-2 font-mono text-[0.58rem] uppercase tracking-[0.12em] text-muted">
+          <span>ink / 01</span>
+          <span>no cursed energy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell relative flex items-center justify-between border-t border-line py-3 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted">
+    <span>scroll for the good stuff</span>
+    <ArrowDown class="h-4 w-4 animate-float" aria-hidden="true" />
+  </div>
+</section>

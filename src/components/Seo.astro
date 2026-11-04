@@ -1,0 +1,55 @@
+---
+import { absoluteUrl, basePath, siteUrl } from "@/lib/utils";
+
+interface Props {
+  title: string;
+  description: string;
+  ogSlug?: string;
+  ogImage?: string | null;
+  noindex?: boolean;
+  type?: "website" | "article" | "profile";
+}
+
+const {
+  title,
+  description,
+  ogSlug = "home",
+  ogImage,
+  noindex = false,
+  type = "website",
+} = Astro.props;
+
+const pathname = Astro.url.pathname;
+const canonicalPath =
+  basePath &&
+  (pathname === basePath || pathname.startsWith(`${basePath}/`))
+    ? pathname.slice(basePath.length) || "/"
+    : pathname;
+const canonical = absoluteUrl(canonicalPath);
+const image = absoluteUrl(ogImage || `/og/${ogSlug}.png`);
+const fullTitle = title.includes("Olamidipupo") || title.includes("Dipo")
+  ? title
+  : `${title} — Dipo Agboola`;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta property="og:site_name" content="dipo.dev" />
+<meta property="og:type" content={type} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image} />
+<meta property="og:image:alt" content={`Cover card for ${title}`} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="en_NG" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
+{siteUrl && <link rel="me" href={siteUrl} />}

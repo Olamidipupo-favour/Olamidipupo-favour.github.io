@@ -1,0 +1,45 @@
+---
+import { ArrowUpRight, Check } from "lucide-astro";
+import type { Service } from "@/lib/types";
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  service: Service;
+  index: number;
+}
+const { service, index } = Astro.props;
+---
+
+<article class="group relative border-2 border-line bg-surface p-6 transition duration-200 hover:-translate-y-1 hover:border-accent sm:p-8">
+  <div class="flex items-start justify-between gap-4">
+    <p class="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted">
+      Service {String(index + 1).padStart(2, "0")}
+    </p>
+    {service.startingPrice && (
+      <p class="border border-accent/50 px-2 py-0.5 font-mono text-[0.62rem] text-accent">
+        from {service.startingPrice}
+      </p>
+    )}
+  </div>
+
+  <h3 class="mt-4 font-display text-2xl font-black italic tracking-tight sm:text-3xl">
+    {service.title}
+  </h3>
+  <p class="mt-3 max-w-prose text-sm leading-6 text-muted">{service.description}</p>
+
+  {service.deliverables.length > 0 && (
+    <ul class="mt-5 space-y-2">
+      {service.deliverables.map((item) => (
+        <li class="flex gap-2 text-sm leading-6">
+          <Check class="mt-1 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <a class="mt-6 inline-flex items-center gap-2 font-mono text-[0.66rem] uppercase tracking-[0.12em] text-accent hover:underline" href={withBase("/contact")}>
+    Discuss this
+    <ArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />
+  </a>
+</article>

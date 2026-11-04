@@ -1,0 +1,231 @@
+---
+---
+
+<div
+  id="site-intro"
+  class="site-intro"
+  data-intro
+  role="dialog"
+  aria-modal="true"
+  aria-label="Site intro"
+  hidden
+>
+  <div class="halftone absolute inset-0 opacity-30" aria-hidden="true"></div>
+  <div class="speedlines absolute inset-0 opacity-60" aria-hidden="true"></div>
+
+  <button type="button" class="intro-skip" data-skip-intro>
+    Skip intro <span aria-hidden="true">→</span>
+  </button>
+
+  <div class="intro-inner">
+    <p class="intro-kicker">A portfolio in one take</p>
+    <pre class="intro-boot" data-intro-boot aria-hidden="true">
+booting dipo.dev...
+[ok] loading fundamentals
+[ok] checking uptime ......... 99.95%
+[ok] compiling manga panels
+[ok] summoning mascot (placeholder)
+ready.</pre>
+    <p class="intro-title sfx" data-intro-title>
+      No cursed<br />energy.
+    </p>
+    <p class="intro-sub" data-intro-sub>Just fundamentals.</p>
+  </div>
+
+  <svg
+    class="intro-slash"
+    viewBox="0 0 1000 700"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+  >
+    <path
+      data-intro-slash
+      d="M-80 560 C 160 420, 330 470, 520 330 S 820 190, 1080 60"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="22"
+      stroke-linecap="square"
+    ></path>
+    <path
+      d="M-80 572 C 160 432, 330 482, 520 342 S 820 202, 1080 72"
+      fill="none"
+      stroke="rgb(var(--bg))"
+      stroke-width="7"
+      stroke-linecap="square"
+      opacity="0.8"
+    ></path>
+  </svg>
+</div>
+
+<style>
+  .site-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 180;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: rgb(var(--bg));
+    color: rgb(var(--ink));
+  }
+
+  .site-intro[hidden] {
+    display: none;
+  }
+
+  .intro-inner {
+    position: relative;
+    z-index: 2;
+    width: min(44rem, calc(100% - 3rem));
+  }
+
+  .intro-kicker {
+    font-family: "JetBrains Mono Variable", monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(var(--accent));
+  }
+
+  .intro-boot {
+    margin-top: 1.25rem;
+    font-family: "JetBrains Mono Variable", monospace;
+    font-size: clamp(0.6rem, 1.8vw, 0.78rem);
+    line-height: 1.9;
+    color: rgb(var(--muted));
+    white-space: pre-wrap;
+  }
+
+  .intro-title {
+    margin-top: 2rem;
+    font-size: clamp(3.2rem, 12vw, 7.5rem);
+    color: rgb(var(--ink));
+  }
+
+  .intro-sub {
+    margin-top: 1rem;
+    font-family: "JetBrains Mono Variable", monospace;
+    font-size: clamp(0.8rem, 2.5vw, 1.05rem);
+    color: rgb(var(--accent));
+  }
+
+  .intro-slash {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    color: rgb(var(--ink));
+    pointer-events: none;
+  }
+
+  .intro-skip {
+    position: absolute;
+    top: max(1rem, env(safe-area-inset-top));
+    right: 1rem;
+    z-index: 5;
+    border: 1px solid rgb(var(--line));
+    background: rgb(var(--bg) / 0.85);
+    padding: 0.6rem 0.9rem;
+    font-family: "JetBrains Mono Variable", monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgb(var(--ink));
+  }
+
+  .intro-skip:hover {
+    border-color: rgb(var(--accent));
+    color: rgb(var(--accent));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-intro {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const initIntro = async () => {
+    const intro = document.querySelector<HTMLElement>("[data-intro]");
+    if (!intro || intro.dataset.ready === "true") return;
+    intro.dataset.ready = "true";
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let seen = true;
+    try {
+      seen = localStorage.getItem("dipo-intro-v1") === "seen";
+    } catch {
+      seen = true;
+    }
+    if (seen || reduce) {
+      intro.hidden = true;
+      return;
+    }
+
+    intro.hidden = false;
+    document.documentElement.style.overflow = "hidden";
+    const skip = intro.querySelector<HTMLButtonElement>("[data-skip-intro]");
+    const slash = intro.querySelector<SVGPathElement>("[data-intro-slash]");
+    const title = intro.querySelector<HTMLElement>("[data-intro-title]");
+    const sub = intro.querySelector<HTMLElement>("[data-intro-sub]");
+    let finished = false;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      try {
+        localStorage.setItem("dipo-intro-v1", "seen");
+      } catch {
+        // Private mode: the intro will play again; never block the page.
+      }
+      intro.style.transition = "opacity 380ms ease";
+      intro.style.opacity = "0";
+      window.setTimeout(() => {
+        intro.hidden = true;
+        intro.style.display = "none";
+        document.documentElement.style.overflow = "";
+      }, 400);
+    };
+
+    skip?.addEventListener("click", finish);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") finish();
+    });
+    skip?.focus({ preventScroll: true });
+
+    // Failsafe: the intro can never hold the site for more than 6 seconds.
+    window.setTimeout(finish, 6000);
+
+    try {
+      const { gsap } = await import("gsap");
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+      timeline
+        .from(title, { y: 26, opacity: 0, duration: 0.5 })
+        .from(sub, { y: 14, opacity: 0, duration: 0.35 }, "-=0.2")
+        .fromTo(
+          slash,
+          { strokeDasharray: 2400, strokeDashoffset: 2400 },
+          { strokeDashoffset: 0, duration: 0.65, ease: "power2.inOut" },
+          "+=0.55",
+        )
+        .to(
+          [title, sub],
+          { x: -18, opacity: 0, duration: 0.28, ease: "power2.in" },
+          "-=0.1",
+        )
+        .to(
+          intro,
+          { clipPath: "inset(0 0 0 100%)", duration: 0.55, ease: "power4.inOut" },
+          "-=0.15",
+        )
+        .add(finish);
+    } catch {
+      window.setTimeout(finish, 2200);
+    }
+  };
+
+  initIntro();
+</script>

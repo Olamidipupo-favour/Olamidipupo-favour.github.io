@@ -1,0 +1,40 @@
+---
+import type { Post } from "@/lib/types";
+import { formatDate, withBase } from "@/lib/utils";
+
+interface Props {
+  post: Post;
+  index?: number;
+}
+const { post, index = 0 } = Astro.props;
+---
+
+<article
+  class="note-card group border-t border-line pt-6"
+  data-note
+  data-date={post.publishedAt}
+  data-title={post.title}
+>
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-muted">
+    <span>{String(index + 1).padStart(2, "0")}</span>
+    <time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+    <span aria-hidden="true">·</span>
+    <span>{post.readingTime} min read</span>
+  </div>
+
+  <a class="mt-2 block" href={withBase(`/notes/${post.slug}`)}>
+    <h3 class="font-display text-2xl font-black italic leading-tight tracking-tight transition-colors group-hover:text-accent sm:text-3xl">
+      {post.title}
+    </h3>
+  </a>
+
+  <p class="mt-2 max-w-prose text-sm leading-6 text-muted">{post.excerpt}</p>
+
+  {post.tags.length > 0 && (
+    <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Tags">
+      {post.tags.map((tag) => (
+        <li class="tag">{tag}</li>
+      ))}
+    </ul>
+  )}
+</article>

@@ -1,0 +1,27 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import GalleryGrid from "@/components/GalleryGrid.astro";
+import { getContent } from "@/lib/content";
+
+const content = await getContent();
+---
+
+<BaseLayout
+  content={content}
+  title="Gallery"
+  description="Frames from the desk, the ward and the terminal — added through the CMS, never stock photography."
+  ogSlug="gallery"
+>
+  <div class="shell py-14 sm:py-20">
+    <p class="chapter-kicker">Chapter 07 · Off duty</p>
+    <h1 class="chapter-title mt-2 text-4xl sm:text-6xl">Proof I go outside.</h1>
+    <p class="mt-4 max-w-2xl text-base leading-7 text-muted">
+      Photos and screenshots, with captions. Filter by year. No stock images, no
+      mood-board filler.
+    </p>
+
+    <div class="mt-10">
+      <GalleryGrid items={content.gallery} />
+    </div>
+  </div>
+</BaseLayout>

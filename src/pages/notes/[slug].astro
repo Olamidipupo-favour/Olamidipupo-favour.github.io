@@ -1,0 +1,156 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ReactionBar from "@/components/ReactionBar.astro";
+import CommentSection from "@/components/CommentSection.astro";
+import ShareLinks from "@/components/ShareLinks.astro";
+import Avatar from "@/components/Avatar.astro";
+import { getContent } from "@/lib/content";
+import type { Content, Post } from "@/lib/types";
+import { formatDate, isPlaceholder, siteUrl, withBase } from "@/lib/utils";
+import { ArrowLeft, ArrowRight } from "lucide-astro";
+
+export async function getStaticPaths() {
+  const content = await getContent();
+  const posts = [...content.posts].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+  );
+  return posts.map((post, index) => ({
+    params: { slug: post.slug },
+    props: {
+      post,
+      content,
+      newer: posts[index - 1],
+      older: posts[index + 1],
+    },
+  }));
+}
+
+interface Props {
+  post: Post;
+  content: Content;
+  newer?: Post;
+  older?: Post;
+}
+const { post, content, newer, older } = Astro.props;
+const { settings } = content;
+const postUrl = new URL(withBase(`/notes/${post.slug}/`), siteUrl).toString();
+const hasPlaceholder = isPlaceholder(post.bodyHtml);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.title,
+  description: post.excerpt,
+  datePublished: post.publishedAt,
+  author: { "@type": "Person", name: settings.name, url: siteUrl },
+  publisher: { "@type": "Person", name: settings.name },
+  mainEntityOfPage: postUrl,
+  keywords: post.tags.join(", "),
+};
+---
+
+<BaseLayout
+  content={content}
+  title={post.title}
+  description={post.excerpt}
+  ogSlug={`note-${post.slug}`}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <article class="shell py-10 sm:py-16">
+    <a
+      class="inline-flex items-center gap-2 font-mono text-[0.64rem] uppercase tracking-[0.14em] text-muted hover:text-accent"
+      href={withBase("/notes")}
+    >
+      <ArrowLeft class="h-3.5 w-3.5" aria-hidden="true" /> All notes
+    </a>
+
+    <header class="mt-7 max-w-3xl">
+      <div class="flex flex-wrap items-center gap-2">
+        {post.tags.map((tag) => <span class="tag tag-accent">{tag}</span>)}
+      </div>
+      <h1 class="mt-4 font-display text-[clamp(2.4rem,7vw,4.6rem)] font-black italic leading-[0.95] tracking-[-0.04em]">
+        {post.title}
+      </h1>
+      <p class="mt-5 max-w-2xl text-base leading-7 text-muted">{post.excerpt}</p>
+      <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-line py-3 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-muted">
+        <time datetime={post.publishedAt}>{formatDate(post.publishedAt)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{post.readingTime} min read</span>
+        <span aria-hidden="true">·</span>
+        <span>{settings.name}</span>
+      </div>
+    </header>
+
+    {post.cover?.url && (
+      <img
+        src={post.cover.url}
+        alt={post.cover.alt || post.title}
+        width={post.cover.width ?? 1600}
+        height={post.cover.height ?? 900}
+        class="mt-8 max-h-[32rem] w-full border-2 border-ink object-cover"
+        loading="eager"
+        decoding="async"
+      />
+    )}
+
+    <div class="mt-9 max-w-3xl">
+      {hasPlaceholder && (
+        <p class="mb-6 border-l-4 border-accent bg-surface p-4 font-mono text-[0.68rem] leading-5 text-muted">
+          This note contains a clearly marked placeholder. It is a draft, not a
+          finished claim.
+        </p>
+      )}
+      <div class="prose-manga" set:html={post.bodyHtml} />
+    </div>
+
+    <div class="mt-10 max-w-3xl">
+      <ShareLinks title={post.title} url={postUrl} />
+    </div>
+
+    <div class="mt-8 max-w-3xl">
+      <ReactionBar slug={post.slug} settings={settings} />
+    </div>
+
+    <div class="mt-10 max-w-3xl">
+      <CommentSection slug={post.slug} />
+    </div>
+
+    <div class="mt-12 max-w-3xl border-t-2 border-ink pt-8">
+      <div class="flex items-center gap-4">
+        <Avatar settings={settings} size="md" />
+        <div>
+          <p class="font-display text-xl font-black italic">{settings.name}</p>
+          <p class="mt-1 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-accent">
+            Backend engineer · future doctor
+          </p>
+        </div>
+      </div>
+      <p class="mt-4 max-w-prose text-sm leading-6 text-muted">
+        {settings.cv.summary}
+      </p>
+      <a class="btn btn-sm mt-5" href={withBase("/contact")}>Work with me</a>
+    </div>
+
+    <nav class="mt-10 grid gap-4 border-t border-line pt-8 sm:grid-cols-2" aria-label="More notes">
+      {newer ? (
+        <a class="group border border-line p-4 hover:border-accent" href={withBase(`/notes/${newer.slug}`)}>
+          <span class="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-muted">Newer</span>
+          <span class="mt-1 flex items-center gap-2 text-sm font-semibold group-hover:text-accent">
+            <ArrowLeft class="h-3.5 w-3.5" aria-hidden="true" /> {newer.title}
+          </span>
+        </a>
+      ) : (
+        <span />
+      )}
+      {older && (
+        <a class="group border border-line p-4 text-right hover:border-accent" href={withBase(`/notes/${older.slug}`)}>
+          <span class="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-muted">Older</span>
+          <span class="mt-1 flex items-center justify-end gap-2 text-sm font-semibold group-hover:text-accent">
+            {older.title} <ArrowRight class="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
+        </a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>

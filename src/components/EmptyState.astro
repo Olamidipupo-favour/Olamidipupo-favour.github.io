@@ -1,0 +1,25 @@
+---
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  kicker?: string;
+  title: string;
+  body: string;
+  href?: string;
+  linkLabel?: string;
+}
+const { kicker, title, body, href, linkLabel } = Astro.props;
+---
+
+<div class="halftone border-2 border-dashed border-line bg-surface/60 p-8 text-center sm:p-12">
+  {kicker && <p class="chapter-kicker">{kicker}</p>}
+  <p class="mt-2 font-display text-2xl font-black italic sm:text-3xl">{title}</p>
+  <p class="mx-auto mt-3 max-w-prose text-sm leading-6 text-muted">{body}</p>
+  {
+    href && linkLabel && (
+      <a class="btn btn-primary mt-6" href={withBase(href)}>
+        {linkLabel}
+      </a>
+    )
+  }
+</div>

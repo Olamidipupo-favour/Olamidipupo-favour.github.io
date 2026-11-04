@@ -1,0 +1,185 @@
+---
+import { ArrowUpRight, Github, Linkedin, Mail, Twitter } from "lucide-astro";
+import type { SiteSettings } from "@/lib/types";
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+}
+const { settings } = Astro.props;
+const year = new Date().getFullYear();
+const socialIcon = (label: string) =>
+  label.toLowerCase() === "github"
+    ? Github
+    : label.toLowerCase() === "linkedin"
+      ? Linkedin
+      : label.toLowerCase() === "x"
+        ? Twitter
+        : ArrowUpRight;
+---
+
+<footer class="relative mt-24 border-t-2 border-ink bg-surface" data-footer>
+  <div class="halftone absolute inset-0 opacity-40" aria-hidden="true"></div>
+
+  <div class="shell relative py-16 sm:py-20">
+    <p class="chapter-kicker">Final chapter</p>
+    <a
+      href={withBase("/contact")}
+      class="group mt-3 block w-fit max-w-full"
+      aria-label="Let's make it real — go to contact"
+    >
+      <span
+        class="sfx ortho-shadow block text-[clamp(3rem,10vw,8rem)] text-ink"
+      >
+        Let's make<br class="sm:hidden" /> it real
+      </span>
+    </a>
+
+    <div class="mt-14 grid gap-10 border-t border-line pt-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <h2 class="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+          Direct line
+        </h2>
+        <a
+          class="mt-3 inline-flex items-center gap-2 break-all font-mono text-sm text-accent hover:underline"
+          href={`mailto:${settings.email}`}
+        >
+          <Mail class="h-4 w-4 shrink-0" aria-hidden="true" />
+          {settings.email}
+        </a>
+        <ul class="mt-4 space-y-2" aria-label="Social links">
+          {
+            settings.socials.map((social) => {
+              const Icon = socialIcon(social.label);
+              return (
+                <li>
+                  <a
+                    class="inline-flex items-center gap-2 font-mono text-xs text-muted hover:text-ink"
+                    href={social.url}
+                    target="_blank"
+                    rel="me noopener noreferrer"
+                  >
+                    <Icon class="h-3.5 w-3.5" aria-hidden="true" />
+                    {social.label}
+                    <ArrowUpRight class="h-3 w-3 opacity-50" aria-hidden="true" />
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+          Index
+        </h2>
+        <ul class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-xs">
+          {
+            [
+              ["Work", "/projects"],
+              ["Notes", "/notes"],
+              ["Gallery", "/gallery"],
+              ["About", "/about"],
+              ["CV", "/cv"],
+              ["Services", "/work-with-me"],
+              ["Contact", "/contact"],
+              ["RSS", "/rss.xml"],
+            ].map(([label, href]) => (
+              <li>
+                <a class="text-muted hover:text-accent" href={withBase(href)}>
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+          Local time
+        </h2>
+        <p
+          class="mt-3 font-mono text-2xl font-bold tabular-nums text-ink"
+          data-lagos-clock
+          aria-hidden="true"
+        >
+          --:--:--
+        </p>
+        <p class="mt-1 font-mono text-[0.66rem] text-muted">
+          Africa/Lagos · WAT
+        </p>
+        <div class="mt-5 border border-line bg-bg p-3 font-mono text-[0.66rem] leading-5">
+          <p class="flex items-center gap-2 text-muted">
+            <span class="h-2 w-2 rounded-full bg-accent" aria-hidden="true"></span>
+            Based in {settings.location}
+          </p>
+          <p class="text-muted">Africa/Lagos · remote-first</p>
+          <p class="mt-1 text-accent">status: online</p>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-mu-[0.18em] text-muted">
+          Paper trail
+        </h2>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button type="button" class="btn btn-sm" data-open-cv>
+            View CV
+          </button>
+          <a class="btn btn-sm btn-ghost" href={withBase("/cv")}>Full page</a>
+        </div>
+        <p class="mt-5 max-w-[28ch] font-mono text-[0.66rem] leading-5 text-muted">
+          Built with Astro, Sanity and Cloudflare. No trackers, no autoplay,
+          no cursed energy.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-col gap-4 border-t border-line pt-6 font-mono text-[0.66rem] text-muted sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} {settings.name}. All rights reserved.</p>
+      <div class="flex flex-wrap items-center gap-4">
+        <a class="hover:text-accent" href={withBase("/rss.xml")}>RSS</a>
+        <a class="hover:text-accent" href={withBase("/sitemap-index.xml")}>
+          Sitemap
+        </a>
+        <button type="button" class="hover:text-accent" data-open-cv>
+          CV
+        </button>
+        <button type="button" class="hover:text-accent" data-open-game>
+          Play
+        </button>
+        <a class="hover:text-accent" href={withBase("/")}>Back to top ↑</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  let clockTimer: number | undefined;
+
+  const initClock = () => {
+    const nodes = document.querySelectorAll<HTMLElement>("[data-lagos-clock]");
+    if (!nodes.length) return;
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Lagos",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+    const tick = () => {
+      const time = formatter.format(new Date());
+      nodes.forEach((node) => {
+        node.textContent = time;
+      });
+    };
+    tick();
+    window.clearInterval(clockTimer);
+    clockTimer = window.setInterval(tick, 1000);
+  };
+
+  initClock();
+  document.addEventListener("astro:page-load", initClock);
+</script>

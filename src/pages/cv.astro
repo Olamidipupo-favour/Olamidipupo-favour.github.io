@@ -1,0 +1,170 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Timeline from "@/components/Timeline.astro";
+import { getContent } from "@/lib/content";
+import { withBase } from "@/lib/utils";
+import { Download, Mail, Printer } from "lucide-astro";
+
+const content = await getContent();
+const { settings, experience } = content;
+---
+
+<BaseLayout
+  content={content}
+  title="CV"
+  description={`${settings.name} — ${settings.cv.summary.slice(0, 150)}`}
+  ogSlug="cv"
+>
+  <div class="shell py-12 sm:py-16">
+    <div class="flex flex-wrap items-start justify-between gap-6">
+      <div>
+        <p class="chapter-kicker">Curriculum vitae</p>
+        <h1 class="chapter-title mt-2 text-4xl sm:text-6xl">{settings.name}</h1>
+        <p class="mt-2 font-mono text-xs uppercase tracking-[0.16em] text-accent">
+          Backend Engineer · {settings.location} · Remote-first
+        </p>
+        <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-[0.68rem]">
+          <a class="inline-flex items-center gap-1.5 text-muted hover:text-accent" href={`mailto:${settings.email}`}>
+            <Mail class="h-3.5 w-3.5" aria-hidden="true" /> {settings.email}
+          </a>
+          {
+            settings.socials.map((social) => (
+              <a
+                class="text-muted underline decoration-line underline-offset-4 hover:text-accent"
+                href={social.url}
+                target="_blank"
+                rel="me noopener noreferrer"
+              >
+                {social.label}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2 no-print">
+        {
+          settings.cvPdf ? (
+            <a class="btn btn-primary" href={settings.cvPdf} download target="_blank" rel="noopener">
+              <Download class="h-4 w-4" aria-hidden="true" /> Download PDF
+            </a>
+          ) : (
+            <button
+              type="button"
+              class="btn cursor-not-allowed opacity-55"
+              disabled
+              title="Upload the CV PDF in Sanity site settings"
+            >
+              <Download class="h-4 w-4" aria-hidden="true" /> PDF pending
+            </button>
+          )
+        }
+        <button type="button" class="btn btn-ghost" data-print-cv>
+          <Printer class="h-4 w-4" aria-hidden="true" /> Print
+        </button>
+      </div>
+    </div>
+
+    {
+      !settings.cvPdf && (
+        <p class="mt-5 border-l-4 border-accent bg-surface p-4 font-mono text-[0.68rem] leading-5 text-muted no-print">
+          [PLACEHOLDER] The downloadable PDF is not uploaded yet. Upload it in
+          Sanity → Site settings → CV PDF. The previous PDF is deliberately not
+          published because it contains a phone number and home address.
+        </p>
+      )
+    }
+
+    <section class="mt-10 border-t-2 border-ink pt-6">
+      <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Summary</h2>
+      <p class="mt-3 max-w-prose text-sm leading-7">{settings.cv.summary}</p>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Proof points</h2>
+      <dl class="mt-4 grid grid-cols-2 border border-line sm:grid-cols-4">
+        {
+          settings.cv.proofPoints.map((point) => (
+            <div class="border-b border-r border-line p-4 last:border-r-0">
+              <dt class="font-mono text-[0.56rem] uppercase tracking-[0.12em] text-muted">{point.label}</dt>
+              <dd class="mt-1 font-display text-2xl font-black italic">{point.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <div class="mt-12 grid gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+      <section>
+        <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Experience</h2>
+        <div class="mt-5">
+          <Timeline experience={experience} />
+        </div>
+      </section>
+
+      <div class="space-y-10">
+        <section>
+          <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Skills</h2>
+          <ul class="mt-4 flex flex-wrap gap-1.5">
+            {settings.cv.skills.map((skill) => <li class="tag">{skill}</li>)}
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Education</h2>
+          <ul class="mt-4 space-y-3">
+            {
+              settings.cv.education.map((entry) => (
+                <li class="border-l-2 border-accent pl-4">
+                  <p class="text-sm font-semibold">{entry.qualification}</p>
+                  <p class="text-sm text-muted">{entry.school}</p>
+                  {entry.detail && (
+                    <p class="font-mono text-[0.62rem] uppercase tracking-wider text-accent">{entry.detail}</p>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Awards</h2>
+          <ul class="mt-4 space-y-2 border-t border-line pt-4">
+            {
+              settings.cv.awards.map((award) => (
+                <li class="flex justify-between gap-3 text-sm leading-6">
+                  <span>{award.title}</span>
+                  {award.year && <span class="font-mono text-xs text-muted">{award.year}</span>}
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Certifications</h2>
+          <ul class="mt-4 space-y-1.5 text-sm">
+            {settings.cv.certifications.map((cert) => <li>{cert}</li>)}
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="mt-14 flex flex-wrap gap-3 border-t border-line pt-8 no-print">
+      <a class="btn btn-primary" href={withBase("/contact")}>Hire me</a>
+      <a class="btn" href={withBase("/projects")}>See the work</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const initCv = () => {
+    const print = document.querySelector<HTMLElement>("[data-print-cv]");
+    if (print && print.dataset.ready !== "true") {
+      print.dataset.ready = "true";
+      print.addEventListener("click", () => window.print());
+    }
+  };
+  initCv();
+  document.addEventListener("astro:page-load", initCv);
+</script>

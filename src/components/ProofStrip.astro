@@ -1,0 +1,42 @@
+---
+import type { SiteSettings } from "@/lib/types";
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+}
+const { settings } = Astro.props;
+const picks = [
+  settings.cv.proofPoints[0],
+  settings.cv.proofPoints[1],
+  settings.cv.proofPoints[2],
+  settings.cv.proofPoints[6],
+].filter(Boolean);
+---
+
+<section aria-labelledby="proof-heading" class="border-b border-line bg-surface">
+  <div class="shell py-8 sm:py-10">
+    <div class="flex flex-wrap items-baseline justify-between gap-3">
+      <h2 id="proof-heading" class="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-muted">
+        Proof, not vibes
+      </h2>
+      <a class="font-mono text-[0.62rem] uppercase tracking-wider text-accent hover:underline" href={withBase("/cv")}>
+        full CV →
+      </a>
+    </div>
+    <dl class="mt-5 grid grid-cols-2 divide-line border border-line sm:grid-cols-4 sm:divide-x">
+      {
+        picks.map((point) => (
+          <div class="border-b border-line p-4 last:border-b-0 sm:border-b-0 sm:p-5">
+            <dt class="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-muted">
+              {point.label}
+            </dt>
+            <dd class="mt-1 font-display text-3xl font-black italic tracking-tight text-ink sm:text-4xl">
+              {point.value}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

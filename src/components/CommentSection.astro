@@ -1,0 +1,229 @@
+---
+import { apiBase } from "@/lib/utils";
+
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const hasApi = Boolean(apiBase);
+---
+
+<section
+  class="mt-12 border-t-2 border-ink pt-8"
+  data-comments
+  data-slug={slug}
+  data-api={apiBase}
+  aria-labelledby="comments-title"
+>
+  <div class="flex flex-wrap items-baseline justify-between gap-3">
+    <h2 id="comments-title" class="font-display text-2xl font-black italic">
+      Comments
+    </h2>
+    <p class="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-muted">
+      moderated · no account needed
+    </p>
+  </div>
+
+  <p class="mt-2 text-sm leading-6 text-muted">
+    Comments are held for approval before they appear. Be useful, be kind, no
+    links to your crypto casino.
+  </p>
+
+  <ol class="mt-6 space-y-4" data-comments-list aria-live="polite">
+    <li class="font-mono text-xs text-muted" data-comments-loading>
+      Loading approved comments…
+    </li>
+  </ol>
+
+  {
+    hasApi ? (
+      <form class="mt-8 space-y-4" data-comment-form novalidate>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="label" for="comment-name">Name</label>
+            <input
+              class="input"
+              id="comment-name"
+              name="name"
+              type="text"
+              required
+              maxlength="60"
+              autocomplete="name"
+            />
+          </div>
+          <div class="hidden" aria-hidden="true">
+            <label for="comment-website">Website</label>
+            <input id="comment-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+        </div>
+        <div>
+          <label class="label" for="comment-body">Comment</label>
+          <textarea
+            class="input min-h-28 resize-y"
+            id="comment-body"
+            name="body"
+            required
+            minlength="2"
+            maxlength="2000"
+          ></textarea>
+        </div>
+        {turnstileKey && (
+          <div
+            class="cf-turnstile"
+            data-comment-turnstile
+            data-sitekey={turnstileKey}
+            data-action="comment"
+          ></div>
+        )}
+        <div class="flex flex-wrap items-center gap-4">
+          <button type="submit" class="btn btn-sm btn-primary" data-comment-submit>
+            Submit for approval
+          </button>
+          <p
+            class="min-h-5 font-mono text-[0.66rem]"
+            data-comment-status
+            role="status"
+            aria-live="polite"
+          ></p>
+        </div>
+      </form>
+    ) : (
+      <p class="mt-8 border border-dashed border-line p-4 font-mono text-xs leading-5 text-muted">
+        Comments open when the Cloudflare Worker is deployed. Until then, use
+        the contact page or reply by email.
+      </p>
+    )
+  }
+</section>
+
+<script>
+  import { loadTurnstile, type TurnstileApi } from "@/lib/turnstile";
+
+  type Comment = { id: number; name: string; body: string; created: string };
+
+  const initComments = () => {
+    const root = document.querySelector<HTMLElement>("[data-comments]");
+    if (!root || root.dataset.ready === "true") return;
+    root.dataset.ready = "true";
+
+    const api = (root.dataset.api ?? "").replace(/\/$/, "");
+    const slug = root.dataset.slug ?? "";
+    const list = root.querySelector<HTMLElement>("[data-comments-list]");
+    const form = root.querySelector<HTMLFormElement>("[data-comment-form]");
+    const status = root.querySelector<HTMLElement>("[data-comment-status]");
+    const submit = root.querySelector<HTMLButtonElement>("[data-comment-submit]");
+    const widget = root.querySelector<HTMLElement>("[data-comment-turnstile]");
+    let widgetId: string | undefined;
+    let turnstile: TurnstileApi | null = null;
+
+    const setStatus = (message: string, tone: "ok" | "error" | "muted" = "muted") => {
+      if (!status) return;
+      status.textContent = message;
+      status.className =
+        "min-h-5 font-mono text-[0.66rem] " +
+        (tone === "ok" ? "text-accent" : tone === "error" ? "text-danger" : "text-muted");
+    };
+
+    const renderComments = (comments: Comment[]) => {
+      if (!list) return;
+      list.innerHTML = "";
+      if (!comments.length) {
+        const empty = document.createElement("li");
+        empty.className = "font-mono text-xs text-muted";
+        empty.textContent =
+          "No approved comments yet. Yours can be the first — once I approve it.";
+        list.appendChild(empty);
+        return;
+      }
+      comments.forEach((comment) => {
+        const item = document.createElement("li");
+        item.className = "border-l-2 border-line pl-4";
+        const meta = document.createElement("p");
+        meta.className =
+          "font-mono text-[0.6rem] uppercase tracking-wider text-muted";
+        const date = new Date(comment.created);
+        meta.textContent = `${comment.name} · ${
+          Number.isNaN(date.getTime())
+            ? comment.created
+            : new Intl.DateTimeFormat("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }).format(date)
+        }`;
+        const body = document.createElement("p");
+        body.className = "mt-1 whitespace-pre-wrap text-sm leading-6";
+        body.textContent = comment.body;
+        item.append(meta, body);
+        list.appendChild(item);
+      });
+    };
+
+    if (api) {
+      fetch(`${api}/api/comments?slug=${encodeURIComponent(slug)}`)
+        .then((response) => (response.ok ? response.json() : Promise.reject()))
+        .then((data: { comments?: Comment[] }) => renderComments(data.comments ?? []))
+        .catch(() => {
+          if (list) {
+            list.innerHTML =
+              '<li class="font-mono text-xs text-muted">Comments are offline right now.</li>';
+          }
+        });
+
+      if (widget) {
+        loadTurnstile()
+          .then((instance) => {
+            turnstile = instance;
+            if (!instance) throw new Error("Turnstile unavailable");
+            widgetId = instance.render(widget, {
+              sitekey: widget.dataset.sitekey,
+              action: widget.dataset.action,
+              theme: "auto",
+            });
+          })
+          .catch(() => {
+            setStatus("Spam protection could not load. Comments are paused.", "error");
+          });
+      }
+    }
+
+    form?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+      if (String(data.get("website") ?? "")) return;
+      const name = String(data.get("name") ?? "").trim();
+      const body = String(data.get("body") ?? "").trim();
+      const token = turnstile?.getResponse(widgetId) ?? "";
+      if (widget && !token) {
+        setStatus("Please complete the spam check first.", "error");
+        return;
+      }
+      submit?.setAttribute("disabled", "true");
+      setStatus("Sending for approval…");
+      try {
+        const response = await fetch(`${api}/api/comments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slug, name, body, turnstileToken: token }),
+        });
+        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+        if (!response.ok) throw new Error(payload.error || "Could not post.");
+        form.reset();
+        turnstile?.reset(widgetId);
+        setStatus("Held for approval. It will appear once I read it.", "ok");
+      } catch (error) {
+        setStatus(
+          error instanceof Error ? error.message : "Could not post. Try again later.",
+          "error",
+        );
+      } finally {
+        submit?.removeAttribute("disabled");
+      }
+    });
+  };
+
+  initComments();
+  document.addEventListener("astro:page-load", initComments);
+</script>

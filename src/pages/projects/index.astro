@@ -1,0 +1,58 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import EmptyState from "@/components/EmptyState.astro";
+import { getContent } from "@/lib/content";
+
+const content = await getContent();
+const projects = [...content.projects].sort((a, b) => a.order - b.order);
+---
+
+<BaseLayout
+  content={content}
+  title="Selected Work — Case Studies"
+  description="Backend case studies: Tekcify, StudyBuddy, DIDO and OAU Medicos. Architecture, constraints, outcomes and the numbers."
+  ogSlug="projects"
+>
+  <div class="shell py-14 sm:py-20">
+    <p class="chapter-kicker">Chapter 02 · Selected work</p>
+    <h1 class="chapter-title mt-2 max-w-3xl text-4xl sm:text-6xl">
+      The work, with the numbers attached.
+    </h1>
+    <p class="mt-5 max-w-2xl text-base leading-7 text-muted">
+      I build backends that hold up: auth, data, background jobs, containers and
+      the unglamorous work that keeps a service awake at 3am. Each case study
+      shows the constraint, my role and the outcome.
+    </p>
+
+    {
+      projects.length > 0 ? (
+        <div class="mt-10 grid gap-5 md:grid-cols-2">
+          {projects.map((project, index) => (
+            <ProjectCard project={project} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div class="mt-10">
+          <EmptyState
+            title="No case studies published yet."
+            body="Projects are managed in Sanity. Add a project with a title, role, stack and outcome to publish it here."
+            href="/contact"
+            linkLabel="Ask about recent work"
+          />
+        </div>
+      )
+    }
+
+    <div class="mt-14 border-t border-line pt-8">
+      <SectionHeading
+        chapter="03"
+        title="Want the short version?"
+        description="The CV has the roles, proof points, awards and education on one page."
+        href="/cv"
+        linkLabel="Open the CV"
+      />
+    </div>
+  </div>
+</BaseLayout>

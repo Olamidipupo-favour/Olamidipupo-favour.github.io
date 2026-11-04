@@ -1,0 +1,110 @@
+---
+---
+
+<div class="page-loader" data-page-loader aria-hidden="true">
+  <div class="page-loader-inner">
+    <p class="page-loader-label">changing chapter</p>
+    <p class="page-loader-number" data-page-loader-number>00</p>
+    <div class="page-loader-track" aria-hidden="true">
+      <span data-page-loader-bar></span>
+    </div>
+    <p class="page-loader-boot" data-page-loader-boot>booting dipo.dev…</p>
+  </div>
+</div>
+
+<style>
+  .page-loader-inner {
+    width: min(18rem, calc(100% - 3rem));
+    text-align: center;
+  }
+
+  .page-loader-label,
+  .page-loader-boot {
+    font-family: "JetBrains Mono Variable", monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgb(var(--muted));
+  }
+
+  .page-loader-number {
+    margin: 0.4rem 0;
+    font-family: "Archivo Variable", sans-serif;
+    font-size: clamp(4rem, 16vw, 8rem);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.9;
+    color: rgb(var(--ink));
+    font-variant-numeric: tabular-nums;
+  }
+
+  .page-loader-track {
+    height: 4px;
+    border: 1px solid rgb(var(--line));
+    background: rgb(var(--surface));
+  }
+
+  .page-loader-track span {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: rgb(var(--accent));
+    transition: width 160ms linear;
+  }
+
+  .page-loader-boot {
+    margin-top: 0.6rem;
+    text-transform: lowercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+
+<script>
+  const initLoader = () => {
+    const loader = document.querySelector<HTMLElement>("[data-page-loader]");
+    if (!loader || loader.dataset.ready === "true") return;
+    loader.dataset.ready = "true";
+
+    const number = loader.querySelector<HTMLElement>("[data-page-loader-number]");
+    const bar = loader.querySelector<HTMLElement>("[data-page-loader-bar]");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let timer: number | undefined;
+
+    const stop = () => {
+      window.clearInterval(timer);
+      if (number) number.textContent = "100";
+      if (bar) bar.style.width = "100%";
+      window.setTimeout(() => {
+        loader.dataset.active = "false";
+        loader.setAttribute("aria-hidden", "true");
+        if (number) number.textContent = "00";
+        if (bar) bar.style.width = "0%";
+      }, 160);
+    };
+
+    document.addEventListener("astro:before-preparation", (event) => {
+      if (reduce) return;
+      const to = event.to;
+      if (to && to.pathname === window.location.pathname && to.hash) return;
+      loader.dataset.active = "true";
+      loader.setAttribute("aria-hidden", "false");
+      let value = 6;
+      if (number) number.textContent = "06";
+      if (bar) bar.style.width = "6%";
+      window.clearInterval(timer);
+      timer = window.setInterval(() => {
+        value = Math.min(94, value + Math.ceil(Math.random() * 17));
+        if (number) number.textContent = String(value).padStart(2, "0");
+        if (bar) bar.style.width = `${value}%`;
+      }, 90);
+    });
+
+    document.addEventListener("astro:page-load", stop);
+    document.addEventListener("astro:after-swap", () => {
+      window.clearInterval(timer);
+    });
+  };
+
+  initLoader();
+  document.addEventListener("astro:page-load", initLoader);
+</script>

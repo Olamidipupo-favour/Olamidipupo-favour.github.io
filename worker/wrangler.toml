@@ -1,0 +1,21 @@
+name = "dipo-portfolio-worker"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dipo"
+database_id = "674fd280-0758-44df-a067-bb1350593e0f"
+
+[vars]
+# Origins only, never a repo path. Add a custom domain if you use one.
+ALLOWED_ORIGINS = "https://olamidipupo-favour.github.io,http://localhost:4321"
+TURNSTILE_HOSTNAMES = "olamidipupo-favour.github.io,studara.name.ng"
+GITHUB_REPO = "olamidipupo-favour/Olamidipupo-favour.github.io"
+CONTACT_TO = "dipoagboola2019@gmail.com"
+CONTACT_FROM = "Dipo Portfolio <onboarding@resend.dev>"
+
+# Secrets (set with `wrangler secret put <NAME>`):
+# TURNSTILE_SECRET, RESEND_API_KEY, ADMIN_TOKEN, REACTION_SALT,
+# SANITY_WEBHOOK_SECRET, GITHUB_TOKEN

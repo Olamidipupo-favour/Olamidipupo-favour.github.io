@@ -1,0 +1,160 @@
+---
+import type { Content } from "@/lib/types";
+import { apiBase, formatDate, withBase } from "@/lib/utils";
+
+interface Props {
+  content: Content;
+}
+const { content } = Astro.props;
+const latestProject = content.projects[0];
+const latestPost = content.posts[0];
+
+const items = [
+  {
+    emoji: "🟢",
+    label: "Status",
+    text: content.settings.availability.text,
+    href: withBase("/contact"),
+    meta: "now",
+  },
+  {
+    emoji: "⚡",
+    label: "Building",
+    text: content.settings.nowBuilding,
+    href: withBase("/about"),
+    meta: "now",
+  },
+];
+if (latestProject) {
+  items.push({
+    emoji: "📦",
+    label: "Latest case study",
+    text: `${latestProject.title} — ${latestProject.summary}`,
+    href: withBase(`/projects/${latestProject.slug}`),
+    meta: "case study",
+  });
+}
+if (latestPost) {
+  items.push({
+    emoji: "📝",
+    label: "Latest note",
+    text: latestPost.title,
+    href: withBase(`/notes/${latestPost.slug}`),
+    meta: formatDate(latestPost.publishedAt),
+  });
+} else {
+  items.push({
+    emoji: "📝",
+    label: "Notes",
+    text: "No notes published yet. The CMS is waiting for the first one.",
+    href: withBase("/notes"),
+    meta: "soon",
+  });
+}
+---
+
+<ul class="divide-y divide-line border-y border-line">
+  {
+    items.map((item) => (
+      <li>
+        <a
+          href={item.href}
+          class="group grid grid-cols-[auto_1fr_auto] items-start gap-3 py-3.5 transition-colors hover:bg-surface"
+        >
+          <span class="text-sm" aria-hidden="true">{item.emoji}</span>
+          <span class="min-w-0">
+            <span class="block font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
+              {item.label}
+            </span>
+            <span class="mt-0.5 block text-sm leading-6 text-ink/90 group-hover:text-accent">
+              {item.text}
+            </span>
+          </span>
+          <span class="pt-0.5 font-mono text-[0.56rem] uppercase tracking-wider text-muted">
+            {item.meta}
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<div class="mt-5" data-activity data-api={apiBase} hidden>
+  <p class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
+    Live from the API
+  </p>
+  <ul class="mt-2 divide-y divide-line border-y border-line" data-activity-list aria-live="polite"></ul>
+</div>
+<p class="mt-3 font-mono text-[0.6rem] text-muted" data-activity-status hidden></p>
+
+<script>
+  import { apiBase } from "@/lib/utils";
+
+  const timeFormat = new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+
+  const initActivity = () => {
+    const root = document.querySelector<HTMLElement>("[data-activity]");
+    if (!root || root.dataset.ready === "true" || !apiBase) return;
+    root.dataset.ready = "true";
+
+    const list = root.querySelector<HTMLElement>("[data-activity-list]");
+    const status = document.querySelector<HTMLElement>("[data-activity-status]");
+    const api = apiBase.replace(/\/$/, "");
+
+    fetch(`${api}/api/activity`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Activity request failed");
+        return response.json() as Promise<{
+          activity: Array<{
+            kind: "comment" | "reaction";
+            slug: string;
+            name?: string;
+            text?: string;
+            reaction?: string;
+            count?: number;
+            created: string;
+          }>;
+        }>;
+      })
+      .then((data) => {
+        if (!list || !data.activity?.length) return;
+        for (const item of data.activity) {
+          const row = document.createElement("li");
+          row.className = "grid grid-cols-[auto_1fr_auto] items-start gap-3 py-2.5";
+          const label = document.createElement("span");
+          label.className =
+            "font-mono text-[0.58rem] uppercase tracking-[0.14em] text-muted";
+          label.textContent = item.kind === "comment" ? "comment" : item.reaction ?? "reaction";
+          const text = document.createElement("span");
+          text.className = "text-sm leading-6 text-ink/90";
+          text.textContent =
+  item.kind === "comment"
+              ? `${item.name}: ${item.text}`
+              : `${item.count ?? 0} on ${item.slug}`;
+          const time = document.createElement("time");
+          time.className =
+            "font-mono text-[0.56rem] uppercase tracking-wider text-muted";
+          time.dateTime = item.created;
+          time.textContent = Number.isNaN(new Date(item.created).getTime())
+            ? ""
+            : timeFormat.format(new Date(item.created));
+          row.append(label, text, time);
+          list.append(row);
+        }
+        root.hidden = false;
+      })
+      .catch(() => {
+        if (status) {
+          status.textContent =
+            "Live activity is offline right now. The rest of the page still works.";
+          status.hidden = false;
+        }
+      });
+  };
+
+  initActivity();
+  document.addEventListener("astro:page-load", initActivity);
+</script>

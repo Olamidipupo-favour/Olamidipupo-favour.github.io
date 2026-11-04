@@ -1,0 +1,98 @@
+---
+import { ArrowUpRight, Quote } from "lucide-astro";
+import type { SiteSettings, Testimonial } from "@/lib/types";
+import { withBase } from "@/lib/utils";
+
+interface Props {
+  testimonials: Testimonial[];
+  settings: SiteSettings;
+}
+const { testimonials, settings } = Astro.props;
+---
+
+{
+  testimonials.length > 0 ? (
+    <div class="grid gap-5 md:grid-cols-2">
+      {testimonials.map((item, index) => (
+        <figure
+          class:list={[
+            "group relative border-2 border-line bg-surface p-6 transition duration-200 hover:-translate-y-1 hover:border-accent focus-within:border-accent sm:p-8",
+            index % 2 === 1 && "md:translate-y-6",
+          ]}
+        >
+          <Quote class="h-7 w-7 text-accent" aria-hidden="true" />
+          <blockquote class="mt-4 font-display text-lg font-medium italic leading-7 sm:text-xl">
+            “{item.quote}”
+          </blockquote>
+          <figcaption class="mt-6 flex items-center gap-3 border-t border-line pt-4">
+            {item.avatar?.url ? (
+              <img
+                src={item.avatar.url}
+                alt=""
+                width="44"
+                height="44"
+                loading="lazy"
+                decoding="async"
+                class="h-11 w-11 border border-ink object-cover"
+              />
+            ) : (
+              <span
+                class="flex h-11 w-11 items-center justify-center border border-line bg-raised font-mono text-sm font-bold text-accent"
+                aria-hidden="true">{item.name.charAt(0)}</span
+              >
+            )}
+            <div>
+              <p class="text-sm font-semibold">{item.name}</p>
+              <p class="font-mono text-[0.62rem] uppercase tracking-wider text-muted">
+                {item.role}{item.company ? ` · ${item.company}` : ""}
+              </p>
+            </div>
+            {item.link && (
+              <a
+                class="ml-auto inline-flex h-8 w-8 items-center justify-center border border-line text-muted hover:border-accent hover:text-accent"
+                href={withBase(item.link)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Visit ${item.name}'s profile`}
+              >
+                <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+              </a>
+            )}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  ) : (
+    <div class="grid gap-5 md:grid-cols-[1.1fr_0.9fr]">
+      <div class="panel relative overflow-hidden bg-surface p-6 sm:p-8">
+        <div class="halftone absolute inset-0 opacity-40" aria-hidden="true" />
+        <div class="relative">
+          <Quote class="h-8 w-8 text-accent" aria-hidden="true" />
+          <p class="mt-4 font-display text-3xl font-black italic leading-tight sm:text-4xl">
+            Your team?
+          </p>
+          <p class="mt-3 max-w-[38ch] text-sm leading-6 text-muted">
+            No testimonials are published yet — and I will not invent any. This
+            slot is reserved for the first team that ships something with me.
+          </p>
+          <a class="btn btn-primary mt-6" href={withBase("/contact")}>
+            Start a conversation
+            <ArrowUpRight class="h-4 w-4" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+      <div class="flex flex-col justify-between border-2 border-dashed border-line p-6">
+        <p class="font-mono text-[0.64rem] uppercase leading-5 tracking-[0.12em] text-muted">
+          The honest version
+        </p>
+        <blockquote class="mt-4 font-display text-xl italic leading-8">
+          “I care about the boring parts: indexes, retries, uptime and
+          on-call pages that stay quiet.”
+        </blockquote>
+        <p class="mt-4 font-mono text-[0.62rem] text-muted">
+          — {settings.name}, about himself. Not a testimonial.
+        </p>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,268 @@
+---
+import {
+  Command,
+  FileText,
+  GripHorizontal,
+  Palette,
+  Sparkles,
+  Volume2,
+  VolumeX,
+} from "lucide-astro";
+---
+
+<div class="dock-wrap" data-dock>
+  <p
+    class="pointer-events-none border border-line bg-bg px-2 py-1 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted shadow-panel-sm"
+    data-dock-hint
+  >
+    drag things around
+  </p>
+
+  <div class="dock" role="toolbar" aria-label="Quick controls">
+    <button
+      type="button"
+      class="dock-btn cursor-grab active:cursor-grabbing"
+      data-dock-handle
+      aria-label="Drag the dock. Use arrow keys to move it."
+      title="Drag things around"
+    >
+      <GripHorizontal aria-hidden="true" />
+    </button>
+    <span class="h-6 w-px bg-line" aria-hidden="true"></span>
+    <button
+      type="button"
+      class="dock-btn"
+      data-open-palette
+      aria-label="Open command palette (Ctrl or Cmd + K)"
+      title="Command palette · Ctrl/Cmd K"
+    >
+      <Command aria-hidden="true" />
+    </button>
+    <button
+      type="button"
+      class="dock-btn"
+      data-theme-toggle
+      aria-label="Switch theme"
+      title="Switch theme"
+    >
+      <Palette aria-hidden="true" />
+    </button>
+    <button
+      type="button"
+      class="dock-btn"
+      data-shonen-toggle
+      aria-pressed="false"
+      aria-label="Toggle Shonen colour mode"
+      title="Shonen mode"
+    >
+      <Sparkles aria-hidden="true" />
+    </button>
+    <button
+      type="button"
+      class="dock-btn"
+      data-sound-toggle
+      aria-pressed="false"
+      aria-label="Enable interface sound"
+      title="Sound off"
+    >
+      <VolumeX aria-hidden="true" data-sound-off />
+      <Volume2 class="hidden" aria-hidden="true" data-sound-on />
+    </button>
+    <button
+      type="button"
+      class="dock-btn"
+      data-open-cv
+      aria-label="Open CV"
+      title="CV"
+    >
+      <FileText aria-hidden="true" />
+    </button>
+  </div>
+</div>
+
+<script>
+  import { blip, setSound } from "@/lib/sound";
+
+  const THEMES: string[] = ["ink", "amber", "light"];
+
+  const initDock = () => {
+    const dock = document.querySelector<HTMLElement>("[data-dock]");
+    if (!dock || dock.dataset.ready === "true") return;
+    dock.dataset.ready = "true";
+
+    const root = document.documentElement;
+    const hint = dock.querySelector<HTMLElement>("[data-dock-hint]");
+    const themeButton =
+      dock.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+    const shonenButton =
+      dock.querySelector<HTMLButtonElement>("[data-shonen-toggle]");
+    const soundButton =
+      dock.querySelector<HTMLButtonElement>("[data-sound-toggle]");
+    const soundOn = dock.querySelector<HTMLElement>("[data-sound-on]");
+    const soundOff = dock.querySelector<HTMLElement>("[data-sound-off]");
+    const handle = dock.querySelector<HTMLButtonElement>("[data-dock-handle]");
+
+    const hideHint = () => {
+      if (!hint) return;
+      hint.style.opacity = "0";
+      hint.style.transition = "opacity 400ms ease";
+      window.setTimeout(() => hint.setAttribute("hidden", ""), 400);
+    };
+    const hintTimer = window.setTimeout(hideHint, 7000);
+    if (localStorage.getItem("dipo-dock-moved") === "true") {
+      window.clearTimeout(hintTimer);
+      hideHint();
+    }
+
+    const applyTheme = (theme: string, persist = true) => {
+      root.dataset.theme = theme;
+      if (persist) localStorage.setItem("dipo-theme", theme);
+      const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+      themeButton?.setAttribute(
+        "aria-label",
+        `Theme: ${theme}. Switch to ${next}.`,
+      );
+      themeButton?.setAttribute("title", `Theme: ${theme}`);
+    };
+
+    const currentTheme = root.dataset.theme ?? "ink";
+    applyTheme(currentTheme, false);
+
+    themeButton?.addEventListener("click", () => {
+      const now = root.dataset.theme ?? "ink";
+      const next = THEMES[(THEMES.indexOf(now) + 1) % THEMES.length];
+      applyTheme(next);
+      blip(520, 0.07);
+    });
+
+    const applyShonen = (on: boolean) => {
+      root.dataset.shonen = on ? "true" : "false";
+      localStorage.setItem("dipo-shonen", String(on));
+      shonenButton?.setAttribute("aria-pressed", String(on));
+      shonenButton?.setAttribute(
+        "aria-label",
+        on ? "Disable Shonen colour mode" : "Toggle Shonen colour mode",
+      );
+    };
+    applyShonen(root.dataset.shonen === "true");
+    shonenButton?.addEventListener("click", () => {
+      applyShonen(root.dataset.shonen !== "true");
+      blip(720, 0.09);
+    });
+
+    const applySound = (on: boolean) => {
+      root.dataset.sound = on ? "on" : "off";
+      localStorage.setItem("dipo-sound", on ? "on" : "off");
+      soundButton?.setAttribute("aria-pressed", String(on));
+      soundButton?.setAttribute(
+        "aria-label",
+        on ? "Disable interface sound" : "Enable interface sound",
+      );
+      if (soundButton) soundButton.title = on ? "Sound on" : "Sound off";
+      soundOn?.classList.toggle("hidden", !on);
+      soundOff?.classList.toggle("hidden", on);
+    };
+    applySound(localStorage.getItem("dipo-sound") === "on");
+    soundButton?.addEventListener("click", () => {
+      const on = localStorage.getItem("dipo-sound") !== "on";
+      applySound(on);
+      if (on) setSound(true);
+    });
+
+    // Draggable dock. Pointer drag is an enhancement; every control stays keyboard usable.
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let originX = 0;
+    let originY = 0;
+
+    const clamp = (x: number, y: number) => {
+      const rect = dock.getBoundingClientRect();
+      const maxX = window.innerWidth - rect.width - 8;
+      const maxY = window.innerHeight - rect.height - 8;
+      return {
+        x: Math.min(Math.max(8, x), Math.max(8, maxX)),
+        y: Math.min(Math.max(8, y), Math.max(8, maxY)),
+      };
+    };
+
+    const place = (x: number, y: number) => {
+      const next = clamp(x, y);
+      dock.dataset.dragged = "true";
+      dock.style.setProperty("--dock-x", `${next.x}px`);
+      dock.style.setProperty("--dock-y", `${next.y}px`);
+      return next;
+    };
+
+    const restore = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem("dipo-dock-pos") ?? "null");
+        if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) {
+          place(saved.x, saved.y);
+        }
+      } catch {
+        // Ignore corrupt position.
+      }
+    };
+    restore();
+
+    handle?.addEventListener("pointerdown", (event) => {
+      const rect = dock.getBoundingClientRect();
+      dragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      originX = rect.left;
+      originY = rect.top;
+      handle.setPointerCapture(event.pointerId);
+      hideHint();
+      localStorage.setItem("dipo-dock-moved", "true");
+      event.preventDefault();
+    });
+
+    handle?.addEventListener("pointermove", (event) => {
+      if (!dragging) return;
+      place(originX + event.clientX - startX, originY + event.clientY - startY);
+    });
+
+    const stopDrag = (event: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      handle?.releasePointerCapture(event.pointerId);
+      const rect = dock.getBoundingClientRect();
+      localStorage.setItem(
+        "dipo-dock-pos",
+        JSON.stringify({ x: Math.round(rect.left), y: Math.round(rect.top) }),
+      );
+    };
+    handle?.addEventListener("pointerup", stopDrag);
+    handle?.addEventListener("pointercancel", stopDrag);
+
+    handle?.addEventListener("keydown", (event) => {
+      const step = event.shiftKey ? 32 : 12;
+      const rect = dock.getBoundingClientRect();
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key))
+        return;
+      event.preventDefault();
+      let x = rect.left;
+      let y = rect.top;
+      if (event.key === "ArrowLeft") x -= step;
+      if (event.key === "ArrowRight") x += step;
+      if (event.key === "ArrowUp") y -= step;
+      if (event.key === "ArrowDown") y += step;
+      const next = place(x, y);
+      localStorage.setItem("dipo-dock-pos", JSON.stringify(next));
+      localStorage.setItem("dipo-dock-moved", "true");
+      hideHint();
+    });
+
+    window.addEventListener("resize", () => {
+      const rect = dock.getBoundingClientRect();
+      if (dock.dataset.dragged === "true") {
+        place(rect.left, rect.top);
+      }
+    });
+  };
+
+  initDock();
+  document.addEventListener("astro:page-load", initDock);
+</script>

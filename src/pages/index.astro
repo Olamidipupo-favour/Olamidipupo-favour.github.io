@@ -1,0 +1,192 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import ProofStrip from "@/components/ProofStrip.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import PostCard from "@/components/PostCard.astro";
+import ActivityFeed from "@/components/ActivityFeed.astro";
+import Testimonials from "@/components/Testimonials.astro";
+import EmptyState from "@/components/EmptyState.astro";
+import Avatar from "@/components/Avatar.astro";
+import { getContent } from "@/lib/content";
+import { formatDate, withBase } from "@/lib/utils";
+
+const content = await getContent();
+const { settings, projects, posts, experience } = content;
+const featured = projects
+  .filter((project) => project.featured)
+  .sort((a, b) => a.order - b.order)
+  .slice(0, 4);
+const latestPosts = [...posts]
+  .sort(
+    (a, b) =>
+      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+  )
+  .slice(0, 3);
+const currentRole = experience.find((job) => job.current);
+---
+
+<BaseLayout
+  content={content}
+  title={settings.seo.title}
+  description={settings.seo.description}
+  ogSlug="home"
+>
+  <Hero settings={settings} />
+  <ProofStrip settings={settings} />
+
+  <section id="work" class="shell scroll-mt-24 py-16 sm:py-24">
+    <SectionHeading
+      chapter="02"
+      title="Selected Work"
+      description="Case studies, not screenshots. The problem, the constraint, what I actually shipped, and what it did to the numbers."
+      href="/projects"
+      linkLabel="All case studies"
+    />
+
+    {
+      featured.length > 0 ? (
+        <div class="mt-8 grid gap-5 md:grid-cols-2">
+          {featured.map((project, index) => (
+            <ProjectCard project={project} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div class="mt-8">
+          <EmptyState
+            title="The work is being written up."
+            body="Case studies live in Sanity and will appear here as soon as they are published."
+            href="/contact"
+            linkLabel="Ask me about the work"
+          />
+        </div>
+      )
+    }
+  </section>
+
+  <section id="notes" class="border-y border-line bg-surface">
+    <div class="shell py-16 sm:py-20">
+      <SectionHeading
+        chapter="03"
+        title="Notes from the terminal"
+        description="Backend notes, med-school notes and the occasional argument about fundamentals."
+        href="/notes"
+        linkLabel="Read the notes"
+      />
+      {
+        latestPosts.length > 0 ? (
+          <div class="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2 lg:grid-cols-3">
+            {latestPosts.map((post, index) => (
+              <PostCard post={post} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div class="mt-8">
+            <EmptyState
+              kicker="Nothing published yet"
+              title="The notebook is open."
+              body="No notes have been published. The RSS feed exists, so you can subscribe before the first one lands."
+              href="/rss.xml"
+              linkLabel="Subscribe via RSS"
+            />
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section id="activity" class="shell py-16 sm:py-24">
+    <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <div>
+        <SectionHeading
+          chapter="04"
+          title="Recent activity"
+          description="What is happening, what shipped, and what is being built next."
+        />
+        <div class="mt-7">
+          <ActivityFeed content={content} />
+        </div>
+      </div>
+
+      <aside class="panel relative overflow-hidden bg-surface p-6 sm:p-8">
+        <div class="halftone absolute inset-0 opacity-40" aria-hidden="true"></div>
+        <div class="relative">
+          <div class="flex items-center gap-3">
+            <Avatar settings={settings} size="md" />
+            <div>
+              <p class="font-display text-xl font-black italic">{settings.shortName}</p>
+              <p class="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-accent">
+                {currentRole ? currentRole.role : "Backend engineer"}
+              </p>
+            </div>
+          </div>
+          <dl class="mt-6 space-y-4 border-t border-line pt-5 text-sm">
+            <div>
+              <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
+                Now building
+              </dt>
+              <dd class="mt-1 leading-6 text-ink/90">{settings.nowBuilding}</dd>
+            </div>
+            <div>
+              <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
+                Currently
+              </dt>
+              <dd class="mt-1 leading-6 text-ink/90">
+                {currentRole ? `${currentRole.role} at ${currentRole.company}` : "Building"}
+              </dd>
+            </div>
+            <div>
+              <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
+                Latest note
+              </dt>
+              <dd class="mt-1 leading-6 text-ink/90">
+                {latestPosts[0]
+                  ? `${latestPosts[0].title} · ${formatDate(latestPosts[0].publishedAt)}`
+                  : "Not published yet"}
+              </dd>
+            </div>
+          </dl>
+          <a class="btn btn-primary mt-6 w-full" href={withBase("/about")}>More about me</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="testimonials" class="border-y border-line bg-surface">
+    <div class="shell py-16 sm:py-20">
+      <SectionHeading
+        chapter="05"
+        title="Kind words"
+        description="Real quotes from real people, or nothing at all. Until then, here is an honest placeholder."
+      />
+      <div class="mt-8">
+        <Testimonials testimonials={content.testimonials} settings={settings} />
+      </div>
+    </div>
+  </section>
+
+  <section class="shell py-16 sm:py-24">
+    <div class="relative overflow-hidden border-2 border-ink p-7 sm:p-12">
+      <div class="halftone-accent absolute inset-0 opacity-50" aria-hidden="true"></div>
+      <div class="relative max-w-2xl">
+        <p class="chapter-kicker">Chapter 06 · Your move</p>
+        <h2 class="chapter-title mt-2 text-4xl sm:text-5xl lg:text-6xl">
+          Have a backend that needs to stay up?
+        </h2>
+        <p class="mt-4 max-w-xl text-sm leading-7 text-muted sm:text-base">
+          I am open to remote backend roles and a small number of freelance
+          projects. Tell me what is breaking, what is slow, or what you are
+          trying to ship.
+        </p>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <a class="btn btn-primary" href={withBase("/contact")}>Start a conversation</a>
+          <a class="btn" href={withBase("/work-with-me")}>How I work</a>
+        </div>
+        <p class="mt-5 font-mono text-[0.66rem] text-muted">
+          or email <a class="text-accent underline" href={`mailto:${settings.email}`}>{settings.email}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

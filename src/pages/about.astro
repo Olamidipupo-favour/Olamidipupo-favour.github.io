@@ -1,0 +1,210 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Avatar from "@/components/Avatar.astro";
+import Mascot from "@/components/Mascot.astro";
+import Timeline from "@/components/Timeline.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import { getContent } from "@/lib/content";
+import { withBase } from "@/lib/utils";
+import { Award, BadgeCheck, GraduationCap, Stethoscope } from "lucide-astro";
+
+const content = await getContent();
+const { settings, experience } = content;
+
+const skillGroups = [
+  {
+    label: "Languages",
+    items: ["Python", "Go", "TypeScript", "Node.js", "SQL", "Bash"],
+  },
+  {
+    label: "Backend",
+    items: ["Django", "Flask", "FastAPI", "NestJS", "REST APIs", "Celery"],
+  },
+  {
+    label: "Data",
+    items: ["PostgreSQL", "Redis", "Query tuning", "Caching"],
+  },
+  {
+    label: "Infrastructure",
+    items: ["Docker", "Kubernetes", "CI/CD", "GitHub Actions", "Linux"],
+  },
+  {
+    label: "Practice",
+    items: ["System design", "Code review", "Security reviews", "Observability"],
+  },
+];
+---
+
+<BaseLayout
+  content={content}
+  title="About Dipo"
+  description="Olamidipupo Agboola — backend engineer and MBBS student at Obafemi Awolowo University. Python, Go, Node/NestJS, Postgres, Docker and Kubernetes."
+  ogSlug="about"
+  type="profile"
+>
+  <div class="shell py-14 sm:py-20">
+    <div class="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-16">
+      <div>
+        <p class="chapter-kicker">Chapter 01 · About</p>
+        <h1 class="chapter-title mt-2 text-4xl sm:text-6xl">
+          Backend engineer.<br />Future doctor. Same fundamentals.
+        </h1>
+        <p class="mt-6 max-w-prose text-base leading-7 text-muted">
+          I am Olamidipupo “Dipo” Agboola. I build production backends —
+          authentication, data models, background jobs and the infrastructure
+          that keeps them running — and I am studying Medicine and Surgery at
+          Obafemi Awolowo University.
+        </p>
+        <p class="mt-4 max-w-prose text-base leading-7 text-muted">
+          I have spent 4+ years shipping backend systems across fintech,
+          marketplaces and education. I led the backend at Codecube, built a
+          freelance marketplace at Pamouja, wrote the backend for a landed-asset
+          fintech at Xavier Paisley, and now lead the development team at
+          Tekcify while building at Pamouja.
+        </p>
+        <p class="mt-4 max-w-prose text-base leading-7 text-muted">
+          The work I like is unglamorous: a clean schema, an index that removes
+          a slow query, a retry policy that stops a 3am page. No cursed energy.
+          Just fundamentals, tested under load.
+        </p>
+
+        <div class="mt-8 border-l-4 border-accent bg-surface p-5">
+          <p class="flex items-center gap-2 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-accent">
+            <Stethoscope class="h-4 w-4" aria-hidden="true" /> Also: future doctor
+          </p>
+          <p class="mt-2 max-w-prose text-sm leading-6 text-muted">
+            MBBS at Obafemi Awolowo University, CGPA 4.8. Medicine taught me to
+            take histories before prescribing, which is suspiciously good
+            preparation for debugging production systems.
+          </p>
+        </div>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="btn btn-primary" href={withBase("/cv")}>Read the CV</a>
+          <a class="btn" href={withBase("/contact")}>Talk to me</a>
+        </div>
+      </div>
+
+      <aside class="panel halftone relative overflow-hidden bg-surface p-4">
+        <div class="flex items-center justify-between border-b-2 border-ink/80 pb-2">
+          <span class="tag tag-accent">Character sheet</span>
+          <span class="font-mono text-[0.58rem] text-muted">est. 2020</span>
+        </div>
+        <div class="mt-4 flex flex-col items-center">
+          <div class="rounded-full border-2 border-accent bg-bg p-1 shadow-glow">
+            <Avatar settings={settings} size="lg" eager />
+          </div>
+          <Mascot settings={settings} />
+        </div>
+        <dl class="mt-2 space-y-2 border-t border-line pt-4 font-mono text-[0.66rem]">
+          <div class="flex justify-between gap-3">
+            <dt class="text-muted">Class</dt>
+            <dd>Backend engineer</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt class="text-muted">Secondary</dt>
+            <dd>MBBS student</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt class="text-muted">Weapon</dt>
+            <dd>Fundamentals</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt class="text-muted">Weakness</dt>
+            <dd>Invented benchmarks</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+
+    <section class="mt-20">
+      <SectionHeading
+        chapter="02"
+        title="The toolkit"
+        description="Tools I reach for, not a progress-bar personality quiz."
+      />
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          skillGroups.map((group) => (
+            <div class="border border-line bg-surface p-5">
+              <h3 class="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-accent">
+                {group.label}
+              </h3>
+              <ul class="mt-3 flex flex-wrap gap-1.5">
+                {group.items.map((item) => (
+                  <li class="tag">{item}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="mt-20 grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+      <div>
+        <SectionHeading chapter="03" title="Track record" />
+        <div class="mt-7">
+          <Timeline experience={experience} />
+        </div>
+      </div>
+
+      <div class="space-y-8">
+        <div>
+          <h2 class="flex items-center gap-2 font-display text-2xl font-black italic">
+            <Award class="h-5 w-5 text-accent" aria-hidden="true" /> Awards
+          </h2>
+          <ul class="mt-4 space-y-2 border-t border-line pt-4">
+            {
+              settings.cv.awards.map((award) => (
+                <li class="flex justify-between gap-3 text-sm leading-6">
+                  <span>{award.title}</span>
+                  {award.year && <span class="font-mono text-xs text-muted">{award.year}</span>}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="flex items-center gap-2 font-display text-2xl font-black italic">
+            <GraduationCap class="h-5 w-5 text-accent" aria-hidden="true" /> Education
+          </h2>
+          <ul class="mt-4 space-y-3 border-t border-line pt-4">
+            {
+              settings.cv.education.map((entry) => (
+                <li>
+                  <p class="text-sm font-semibold">{entry.qualification}</p>
+                  <p class="text-sm text-muted">{entry.school}</p>
+                  {entry.detail && (
+                    <p class="font-mono text-[0.62rem] uppercase tracking-wider text-accent">
+                      {entry.detail}
+                    </p>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="flex items-center gap-2 font-display text-2xl font-black italic">
+            <BadgeCheck class="h-5 w-5 text-accent" aria-hidden="true" /> Certification
+          </h2>
+          <ul class="mt-4 space-y-1.5 border-t border-line pt-4 text-sm">
+            {settings.cv.certifications.map((cert) => <li>{cert}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="mt-16 border-2 border-ink p-6 sm:p-8">
+      <p class="chapter-kicker">Next chapter</p>
+      <h2 class="chapter-title mt-2 text-3xl sm:text-4xl">Need a backend brain?</h2>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a class="btn btn-primary" href={withBase("/contact")}>Get in touch</a>
+        <a class="btn" href={withBase("/work-with-me")}>See how I work</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

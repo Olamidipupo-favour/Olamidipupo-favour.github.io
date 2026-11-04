@@ -1,0 +1,3 @@
+# Local-only overrides for `wrangler dev`.
+# Production must not allow localhost hostnames.
+TURNSTILE_HOSTNAMES=localhost,127.0.0.1

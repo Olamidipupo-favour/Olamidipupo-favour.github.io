@@ -1,0 +1,63 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getContent } from "@/lib/content";
+import { withBase } from "@/lib/utils";
+import { ArrowLeft, Command } from "lucide-astro";
+
+const content = await getContent();
+---
+
+<BaseLayout
+  content={content}
+  title="Command not found"
+  description="404 — that page does not exist."
+  ogSlug="404"
+  noindex
+>
+  <div class="shell flex min-h-[65vh] flex-col justify-center py-16">
+    <div class="terminal-window mx-auto w-full max-w-2xl">
+      <div class="terminal-bar">
+        <span class="terminal-dot bg-danger/80" aria-hidden="true"></span>
+        <span class="terminal-dot bg-accent-3/80" aria-hidden="true"></span>
+        <span class="terminal-dot bg-accent/80" aria-hidden="true"></span>
+        <span class="ml-2 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-muted">
+          exit code 404
+        </span>
+      </div>
+      <div class="p-5 font-mono text-sm leading-7 sm:p-7">
+        <p class="text-muted">
+          <span class="text-accent">dipo@portfolio:~$</span>
+          curl -I <span data-404-url>/this-page</span>
+        </p>
+        <p class="mt-2 text-danger">HTTP/2 404</p>
+        <p class="mt-1 text-muted">command not found: <span data-404-path class="text-ink">/this-page</span></p>
+        <p class="mt-5 text-ink">
+          The page moved, never existed, or is still in the CMS drafts folder.
+        </p>
+        <p class="mt-2 text-muted">
+          Try <span class="text-accent">help</span> or head back to a known route.
+        </p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a class="btn btn-primary btn-sm" href={withBase("/")}>
+            <ArrowLeft class="h-3.5 w-3.5" aria-hidden="true" /> Home
+          </a>
+          <a class="btn btn-sm" href={withBase("/projects")}>Projects</a>
+          <a class="btn btn-sm" href={withBase("/notes")}>Notes</a>
+          <button type="button" class="btn btn-sm" data-open-palette>
+            <Command class="h-3.5 w-3.5" aria-hidden="true" /> Command palette
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const path = window.location.pathname;
+  document.querySelectorAll<HTMLElement>("[data-404-path]").forEach((node) => {
+    node.textContent = path;
+  });
+  document.querySelectorAll<HTMLElement>("[data-404-url]").forEach((node) => {
+    node.textContent = path;
+  });
+</script>

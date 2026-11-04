@@ -1,0 +1,23 @@
+{
+  "name": "Dipo Agboola — Backend Engineer",
+  "short_name": "dipo.dev",
+  "description": "Backend engineer. Ships APIs that don't fall over.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0A0D0C",
+  "theme_color": "#0A0D0C",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

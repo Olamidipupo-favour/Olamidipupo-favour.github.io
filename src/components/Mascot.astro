@@ -1,0 +1,133 @@
+---
+import type { SiteSettings } from "@/lib/types";
+
+interface Props {
+  settings: SiteSettings;
+  eager?: boolean;
+}
+const { settings, eager = false } = Astro.props;
+const ink = settings.mascotInk?.url;
+const shonen = settings.mascotShonen?.url;
+const hasBoth = Boolean(ink && shonen);
+---
+
+<div
+  class:list={["mascot relative", hasBoth && "has-both"]}
+  data-mascot
+  aria-hidden="true"
+>
+  {
+    ink ? (
+      <img
+        src={ink}
+        alt=""
+        class="mascot-image mascot-ink"
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        width="560"
+        height="720"
+      />
+    ) : (
+      <svg
+        class="mascot-image mascot-placeholder max-h-[26rem] w-auto"
+        viewBox="0 0 280 360"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M46 350c8-62 44-94 94-94s86 32 94 94H46Z"
+          fill="currentColor"
+          opacity="0.92"></path>
+        <path
+          d="M101 262c-8-14-13-30-13-48 0-49 24-88 52-88s52 39 52 88c0 18-5 34-13 48"
+          stroke="currentColor"
+          stroke-width="10"></path>
+        <path
+          d="M118 150c9-11 20-16 22-16s13 5 22 16"
+          stroke="currentColor"
+          stroke-width="8"
+          stroke-linecap="square"></path>
+        <path d="M108 182h20M152 182h20" stroke="currentColor" stroke-width="6"></path>
+        <path
+          d="M134 200v18l-8 6"
+          stroke="currentColor"
+          stroke-width="4"
+          stroke-linecap="square"></path>
+        <path d="M118 238h44" stroke="currentColor" stroke-width="4"></path>
+        <path
+          d="M29 135 8 122M251 135l21-13M140 42V18"
+          stroke="currentColor"
+          stroke-width="4"
+          opacity="0.4"></path>
+      </svg>
+    )
+  }
+  {
+    shonen && (
+      <img
+        src={shonen}
+        alt=""
+        class="mascot-image mascot-shonen"
+        loading="lazy"
+        decoding="async"
+        width="560"
+        height="720"
+      />
+    )
+  }
+  {!ink && <p class="mascot-label">mascot placeholder · art supplied separately</p>}
+</div>
+
+<style>
+  .mascot {
+    position: relative;
+    display: flex;
+    min-height: 18rem;
+    align-items: flex-end;
+    justify-content: center;
+    color: rgb(var(--ink));
+  }
+
+  .mascot-image {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 22rem;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(8px 8px 0 rgb(var(--accent) / 0.18));
+  }
+
+  .mascot-placeholder {
+    opacity: 0.9;
+  }
+
+  .mascot-shonen {
+    display: none;
+  }
+
+  :global([data-shonen="true"]) .mascot.has-both .mascot-ink {
+    display: none;
+  }
+
+  :global([data-shonen="true"]) .mascot.has-both .mascot-shonen {
+    display: block;
+  }
+
+  .mascot-label {
+    position: absolute;
+    bottom: 0.4rem;
+    left: 50%;
+    z-index: 2;
+    transform: translateX(-50%);
+    border: 1px solid rgb(var(--line));
+    background: rgb(var(--bg) / 0.9);
+    padding: 0.15rem 0.4rem;
+    font-family: "JetBrains Mono Variable", monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(var(--muted));
+    white-space: nowrap;
+  }
+</style>

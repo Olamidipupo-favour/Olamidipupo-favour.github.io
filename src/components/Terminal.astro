@@ -1,0 +1,344 @@
+---
+import { Terminal as TerminalIcon, X } from "lucide-astro";
+import type { Post, Project, SiteSettings } from "@/lib/types";
+import { formatDate } from "@/lib/utils";
+
+interface Props {
+  settings: SiteSettings;
+  projects: Project[];
+  posts: Post[];
+}
+
+const { settings, projects, posts } = Astro.props;
+
+const terminalData = {
+  name: settings.name,
+  role: "Backend engineer",
+  about: settings.cv.summary,
+  availability: settings.availability.text,
+  cvSummary: settings.cv.summary,
+  cvPdf: settings.cvPdf,
+  email: settings.email,
+  projects: projects.map((project) => ({
+    title: project.title,
+    slug: project.slug,
+    role: project.role,
+  })),
+  posts: posts.map((post) => ({
+    title: post.title,
+    slug: post.slug,
+    date: formatDate(post.publishedAt),
+  })),
+};
+---
+
+<script
+  type="application/json"
+  data-terminal-data
+  set:html={JSON.stringify(terminalData)}
+></script>
+
+<button
+  type="button"
+  class="fixed bottom-5 left-5 z-[85] hidden items-center gap-2 border border-line bg-bg/90 px-3 py-2 font-mono text-[0.68rem] text-muted backdrop-blur hover:border-accent hover:text-accent md:flex"
+  data-open-terminal
+  aria-label="Open the interactive terminal"
+>
+  <TerminalIcon class="h-3.5 w-3.5" aria-hidden="true" />
+  <span class="text-accent">dipo@portfolio</span><span>:</span><span>~</span><span>$</span>
+  <span class="inline-block h-3.5 w-1.5 animate-blink bg-accent" aria-hidden="true"
+  ></span>
+</button>
+
+<dialog class="terminal-dialog" data-terminal aria-labelledby="terminal-title">
+  <div class="terminal-window w-full max-w-3xl shadow-panel">
+    <div class="terminal-bar">
+      <span class="terminal-dot bg-danger/80" aria-hidden="true"></span>
+      <span class="terminal-dot bg-accent-3/80" aria-hidden="true"></span>
+      <span class="terminal-dot bg-accent/80" aria-hidden="true"></span>
+      <h2
+        id="terminal-title"
+        class="ml-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted"
+      >
+        dipo@portfolio: ~
+      </h2>
+      <button
+        type="button"
+        class="ml-auto inline-flex h-7 w-7 items-center justify-center text-muted hover:text-accent"
+        data-close-terminal
+        aria-label="Close terminal"
+      >
+        <X class="h-4 w-4" aria-hidden="true" />
+      </button>
+    </div>
+
+    <div
+      class="h-[min(56vh,28rem)] overflow-y-auto p-4 font-mono text-[0.78rem] leading-6"
+      data-terminal-output
+      role="log"
+      aria-live="polite"
+      aria-label="Terminal output"
+      tabindex="0"
+    >
+      <p class="text-muted">dipo.dev terminal — type <span class="text-accent">help</span> to begin.</p>
+    </div>
+
+    <form class="flex items-center gap-2 border-t border-line px-4 py-3" data-terminal-form>
+      <label for="terminal-input" class="shrink-0 font-mono text-[0.78rem] text-accent"
+        >dipo@portfolio:~$</label
+      >
+      <input
+        id="terminal-input"
+        data-terminal-input
+        class="w-full bg-transparent font-mono text-[0.78rem] text-ink caret-accent focus:outline-none"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Terminal command"
+      />
+      <button type="submit" class="sr-only">Run command</button>
+    </form>
+  </div>
+</dialog>
+
+<style>
+  .terminal-dialog {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 1.25rem;
+    border: 0;
+    background: rgb(0 0 0 / 0.62);
+    color: rgb(var(--ink));
+  }
+
+  .terminal-dialog[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .terminal-dialog::backdrop {
+    background: rgb(0 0 0 / 0.55);
+  }
+</style>
+
+<script>
+  import { blip } from "@/lib/sound";
+  import { withBase } from "@/lib/utils";
+
+  const escape = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const initTerminal = () => {
+    const dialog = document.querySelector<HTMLDialogElement>("[data-terminal]");
+    if (!dialog || dialog.dataset.ready === "true") return;
+    dialog.dataset.ready = "true";
+
+    const dataNode = dialog.querySelector<HTMLElement>("[data-terminal-data]");
+    const data = dataNode ? JSON.parse(dataNode.textContent ?? "{}") : {};
+    const output = dialog.querySelector<HTMLElement>("[data-terminal-output]");
+    const form = dialog.querySelector<HTMLFormElement>("[data-terminal-form]");
+    const input = dialog.querySelector<HTMLInputElement>("[data-terminal-input]");
+    const history: string[] = [];
+    let cursor = -1;
+
+    const write = (html: string) => {
+      if (!output) return;
+      const line = document.createElement("div");
+      line.className = "whitespace-pre-wrap break-words";
+      line.innerHTML = html;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    };
+
+    const link = (href: string, label: string) =>
+      `<a class="text-accent underline decoration-accent/50 underline-offset-2" href="${escape(href)}">${escape(label)}</a>`;
+
+    const banner = () => {
+      write(`<span class="text-accent">dipo.dev</span> <span class="text-muted">v1.0 · type help for commands</span>`);
+    };
+
+    const commands: Record<string, (args: string[]) => void> = {
+      help: () => {
+        write(`<span class="text-accent">available commands</span>`);
+        write(`  help              this list
+  about             short bio
+  projects          selected case studies
+  notes             published notes
+  cat cv.md         CV summary + links
+  theme [name]      ink | amber | light
+  shonen [on|off]   colour mode
+  sound [on|off]    interface blips
+  play              play Keep the Uptime
+  contact           email + contact page
+  clear             clear the screen
+  exit              close the terminal
+  sudo hire-me      try it`);
+      },
+      about: () => {
+        write(escape(data.about));
+        write(`<span class="text-muted">${escape(data.availability)}</span>`);
+      },
+      projects: () => {
+        if (!data.projects.length) {
+          write("No projects published yet.");
+          return;
+        }
+        data.projects.forEach(
+          (project: { title: string; slug: string; role: string }) => {
+            write(`  ${link(withBase(`/projects/${project.slug}`), project.title)} — ${escape(project.role)}`);
+          },
+        );
+      },
+      notes: () => {
+        if (!data.posts.length) {
+          write("No notes yet. The CMS is waiting for the first one.");
+          return;
+        }
+        data.posts.forEach((post: { title: string; slug: string; date: string }) => {
+          write(`  ${link(withBase(`/notes/${post.slug}`), post.title)} — ${escape(post.date)}`);
+        });
+      },
+      cat: (args) => {
+        if (args.join(" ") !== "cv.md") {
+          write(`cat: ${escape(args.join(" ") || "")}: No such file. Try <span class="text-accent">cat cv.md</span>.`);
+          return;
+        }
+        write(`<span class="text-accent"># ${escape(data.name)} — ${escape(data.role)}</span>`);
+        write(escape(data.cvSummary));
+        write(`${link(withBase("/cv"), "full CV page")}${data.cvPdf ? ` · ${link(data.cvPdf, "download PDF")}` : " · PDF not uploaded yet"}`);
+      },
+      theme: (args) => {
+        const options = ["ink", "amber", "light"];
+        if (!options.includes(args[0])) {
+          write(`usage: theme ${options.join(" | ")} (current: ${document.documentElement.dataset.theme})`);
+          return;
+        }
+        document.documentElement.dataset.theme = args[0];
+        localStorage.setItem("dipo-theme", args[0]);
+        document
+          .querySelector<HTMLButtonElement>("[data-theme-toggle]")
+          ?.setAttribute("aria-label", `Theme: ${args[0]}.`);
+        write(`theme set to ${args[0]}.`);
+      },
+      shonen: (args) => {
+        const on = args[0]
+          ? args[0] === "on"
+          : document.documentElement.dataset.shonen !== "true";
+        const button = document.querySelector<HTMLButtonElement>(
+          "[data-shonen-toggle]",
+        );
+        if (button && (document.documentElement.dataset.shonen === "true") !== on) {
+          button.click();
+        }
+        write(`shonen mode ${on ? "on" : "off"}.`);
+      },
+      sound: (args) => {
+        const on = args[0]
+          ? args[0] === "on"
+          : document.documentElement.dataset.sound !== "on";
+        const button = document.querySelector<HTMLButtonElement>(
+          "[data-sound-toggle]",
+        );
+        if (button && (document.documentElement.dataset.sound === "on") !== on) {
+          button.click();
+        }
+        write(`sound ${on ? "on" : "off"}.`);
+      },
+      play: () => {
+        dialog.close();
+        document.querySelector<HTMLButtonElement>("[data-open-game]")?.click();
+      },
+      contact: () => {
+        write(`email: ${link(`mailto:${data.email}`, data.email)}`);
+        write(link(withBase("/contact"), "open the contact form →"));
+      },
+      whoami: () => write(escape(data.name) + " — backend engineer, future doctor."),
+      uptime: () => write("up 4 years, 99.95% of the time. load average: manageable."),
+      ls: () => write("projects/  notes/  gallery/  about/  cv/  work-with-me/  contact/"),
+      clear: () => {
+        if (output) output.innerHTML = "";
+        banner();
+      },
+      exit: () => dialog.close(),
+      sudo: (args) => {
+        if (args.join(" ") !== "hire-me") {
+          write("sudo: only one command is allowed here. Try <span class=\"text-accent\">sudo hire-me</span>.");
+          return;
+        }
+        write(`<span class="text-accent">[sudo] permission granted.</span>`);
+        write("Opening a direct line. Good decision.");
+        window.setTimeout(() => {
+          window.location.href = withBase("/contact");
+        }, 700);
+      },
+    };
+
+    const run = (raw: string) => {
+      const command = raw.trim();
+      if (!command) return;
+      write(`<span class="text-accent">dipo@portfolio:~$</span> ${escape(command)}`);
+      history.push(command);
+      cursor = history.length;
+      const [name, ...args] = command.split(/\s+/);
+      const handler = commands[name.toLowerCase()];
+      if (!handler) {
+        write(`command not found: ${escape(name)}. Type <span class="text-accent">help</span>.`);
+      } else {
+        handler(args);
+      }
+      blip(480, 0.04);
+    };
+
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      run(input?.value ?? "");
+      if (input) input.value = "";
+    });
+
+    input?.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        cursor = Math.max(0, cursor - 1);
+        if (input) input.value = history[cursor] ?? "";
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        cursor = Math.min(history.length, cursor + 1);
+        if (input) input.value = history[cursor] ?? "";
+      }
+    });
+
+    const open = () => {
+      if (!dialog.open) dialog.showModal();
+      write(`<span class="text-muted">— session started —</span>`);
+      banner();
+      window.requestAnimationFrame(() => input?.focus());
+    };
+
+    document.querySelectorAll("[data-open-terminal]").forEach((trigger) => {
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        open();
+      });
+    });
+
+    dialog.querySelectorAll("[data-close-terminal]").forEach((button) => {
+      button.addEventListener("click", () => dialog.close());
+    });
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  };
+
+  initTerminal();
+  document.addEventListener("astro:page-load", initTerminal);
+</script>

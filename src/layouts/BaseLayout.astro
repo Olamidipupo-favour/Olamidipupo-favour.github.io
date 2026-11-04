@@ -1,0 +1,121 @@
+---
+import "@fontsource-variable/inter";
+import "@fontsource-variable/archivo/wght-italic.css";
+import "@fontsource-variable/jetbrains-mono";
+import "@/styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Seo from "@/components/Seo.astro";
+import ThemeScript from "@/components/ThemeScript.astro";
+import Dock from "@/components/Dock.astro";
+import CommandPalette from "@/components/CommandPalette.astro";
+import Terminal from "@/components/Terminal.astro";
+import CvModal from "@/components/CvModal.astro";
+import Intro from "@/components/Intro.astro";
+import PageLoader from "@/components/PageLoader.astro";
+import Game from "@/components/Game.astro";
+import type { Content } from "@/lib/types";
+import { siteUrl, withBase } from "@/lib/utils";
+
+interface Props {
+  content: Content;
+  title: string;
+  description: string;
+  ogSlug?: string;
+  noindex?: boolean;
+  type?: "website" | "article" | "profile";
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  content,
+  title,
+  description,
+  ogSlug,
+  noindex = false,
+  type = "website",
+  jsonLd,
+} = Astro.props;
+const { settings, projects, posts } = content;
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: settings.name,
+  alternateName: "Dipo",
+  url: siteUrl,
+  email: `mailto:${settings.email}`,
+  jobTitle: "Backend Engineer",
+  homeLocation: {
+    "@type": "Place",
+    name: settings.location,
+  },
+  description: settings.seo.description,
+  sameAs: settings.socials.map((social) => social.url),
+  knowsAbout: settings.cv.skills,
+  alumniOf: settings.cv.education.map((entry) => ({
+    "@type": "CollegeOrUniversity",
+    name: entry.school,
+  })),
+  award: settings.cv.awards.map((award) => award.title),
+};
+
+const analyticsToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
+---
+
+<!doctype html>
+<html lang="en-NG" data-theme="ink">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#0A0D0C" />
+    <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+    <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} />
+    <link rel="manifest" href={withBase("/site.webmanifest")} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Dipo — Notes"
+      href={withBase("/rss.xml")}
+    />
+    <ThemeScript />
+    <Seo
+      title={title}
+      description={description}
+      ogSlug={ogSlug}
+      noindex={noindex}
+      type={type}
+    />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(jsonLd ?? personJsonLd)}
+    />
+    {analyticsToken && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: analyticsToken })}
+      />
+    )}
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <Header settings={settings} />
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+    <Footer settings={settings} />
+    <Dock />
+    <Terminal settings={settings} projects={projects} posts={posts} />
+    <CommandPalette settings={settings} projects={projects} posts={posts} />
+    <CvModal settings={settings} />
+    <Intro />
+    <PageLoader />
+    <Game />
+  </body>
+</html>
