@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # main is the live site at /. The design branch is a comparison preview
+    # mounted at /preview/ so both can be judged side by side.
+    branches: [main, design/editorial]
   workflow_dispatch:
   repository_dispatch:
     types: [sanity-publish]
@@ -23,14 +25,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
+      - name: Check out main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: site/package-lock.json
 
       - name: Work out site URL and base path
         env:
@@ -62,22 +68,25 @@ jobs:
         with:
           path: |
             ~/.npm
-            node_modules/.vite
-            .astro
-          key: astro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+            site/node_modules/.vite
+            site/.astro
+          key: astro-${{ runner.os }}-${{ hashFiles('site/package-lock.json') }}-${{ github.sha }}
           restore-keys: |
-            astro-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            astro-${{ runner.os }}-${{ hashFiles('site/package-lock.json') }}-
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Install dependencies
+        working-directory: site
         run: npm ci
 
       - name: Type-check
+        working-directory: site
         run: npm run check
 
       - name: Build
+        working-directory: site
         env:
           PUBLIC_SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
           PUBLIC_SANITY_DATASET: ${{ vars.SANITY_DATASET || 'production' }}
@@ -87,10 +96,39 @@ jobs:
           PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
         run: npm run build
 
+      - name: Check out design branch
+        id: preview
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: design/editorial
+          path: preview
+
+      - name: Install preview dependencies
+        if: steps.preview.outcome == 'success'
+        working-directory: preview
+        run: npm ci
+
+      - name: Build design preview
+        if: steps.preview.outcome == 'success'
+        working-directory: preview
+        env:
+          BASE_PATH: /preview
+          PUBLIC_SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          PUBLIC_SANITY_DATASET: ${{ vars.SANITY_DATASET || 'production' }}
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
+        run: |
+          npm run build
+          mkdir -p ../site/dist/preview
+          cp -r dist/. ../site/dist/preview/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site/dist
 
   deploy:
     needs: build
