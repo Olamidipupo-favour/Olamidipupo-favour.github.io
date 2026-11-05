@@ -13,6 +13,7 @@ hire him.
 | Content | Sanity hosted Studio (`studio/`) |
 | Hosting | GitHub Pages (GitHub Actions) |
 | Forms, comments, reactions | Cloudflare Worker + D1 (`worker/`) |
+| Admin | Cloudflare Access + Preact SPA (`admin/`), served by the Worker |
 | Spam | Cloudflare Turnstile |
 | Email | Resend |
 | Images | Sharp at build time, lazy modern `<img>` |
@@ -151,16 +152,20 @@ Sanity publish
 ```bash
 cd worker
 npm install
-npx wrangler d1 create dipo-portfolio
-# copy database_id into wrangler.toml
-npx wrangler d1 execute dipo-portfolio --remote --file=./schema.sql
+npx wrangler d1 create dipo
+# copy database_id into wrangler.toml; the binding is DB
+npm run db:migrate:remote
 
 npx wrangler secret put TURNSTILE_SECRET
 npx wrangler secret put RESEND_API_KEY
-npx wrangler secret put ADMIN_TOKEN
 npx wrangler secret put REACTION_SALT
 npx wrangler secret put SANITY_WEBHOOK_SECRET
 npx wrangler secret put GITHUB_TOKEN
+
+cd ../admin
+npm ci
+npm run build
+cd ../worker
 npx wrangler deploy
 ```
 
@@ -175,6 +180,15 @@ Edit `[vars]` in `worker/wrangler.toml` first:
 - `GITHUB_REPO` — `owner/repo`, e.g.
   `olamidipupo-favour/Olamidipupo-favour.github.io`.
 - `CONTACT_TO` / `CONTACT_FROM` — verified Resend sender.
+- `ADMIN_ORIGIN` — the admin hostname on a zone in your Cloudflare account,
+  e.g. `https://dipo-admin.studara.name.ng`. The admin SPA and admin API are
+  same-origin; do not point this at the GitHub Pages site or at `workers.dev`
+  (Access cannot hold a session there).
+- `ADMIN_EMAIL` — the single email allowed into the admin UI.
+- `CF_ACCESS_TEAM_DOMAIN` — your Access team domain, e.g.
+  `https://zeus32.cloudflareaccess.com`.
+- `CF_ACCESS_AUD` — the Access application audience tag for the Worker
+  `/admin` app. Copy it from Zero Trust → Access → Applications.
 
 `GITHUB_TOKEN` is a fine-grained GitHub token with **Contents: read and write**
 for this repository only. It is stored as a Worker secret, never in Sanity and
@@ -223,6 +237,105 @@ If a webhook is missed, the daily cron is the fallback. You can also open
    the Worker. If they do not, check `PUBLIC_API_URL` and `ALLOWED_ORIGINS`.
 7. Delete or unpublish the test note, repeat, and confirm it disappears.
 
+## Admin
+
+The admin UI is a separate Preact + Vite SPA in `admin/`. It is never part of
+the GitHub Pages build. The Worker serves its built files at `/admin/` and
+serves the admin API under the same path, so the page and the API share one
+Cloudflare Access session.
+
+```
+https://dipo-admin.studara.name.ng/admin/
+```
+
+The admin hostname must be on a zone in your Cloudflare account. Cloudflare
+Access does not support `workers.dev` hostnames (it is not a zone), so protecting
+`/admin` there redirects between the login page and the app forever. The Worker
+still answers the public API on `workers.dev`; old `/admin` links there return a
+`308` to the admin host.
+
+### Cloudflare Access (one time)
+
+Create **one** Access self-hosted application. Do not create a second app for a
+separate admin hostname; cross-site Access cookies are unreliable and the SPA
+is intentionally same-origin.
+
+1. Zero Trust → Access → Applications → **Add an application** → Self-hosted.
+2. Name: `Dipo Portfolio Admin`.
+3. Domain: `dipo-admin.studara.name.ng`, no path, so the whole host is private.
+4. Session duration: `24 hours`.
+5. Add an **Allow** policy with **Emails** = `agbooladipo624@gmail.com`
+   (change `ADMIN_EMAIL` if you use another address).
+6. Enable the one-time PIN identity provider (or your preferred IdP).
+7. If the dashboard offers **Bypass options for preflight requests**, enable it.
+   The admin API is same-origin, but this keeps `OPTIONS` requests simple.
+8. Copy the application **Audience (AUD)** tag into the Worker `CF_ACCESS_AUD`
+   variable. Set `CF_ACCESS_TEAM_DOMAIN` to
+   `https://zeus32.cloudflareaccess.com`.
+
+The Worker also checks the JWT itself. It fetches the team JWKS, verifies the
+RS256 signature, issuer, audience, `exp`/`nbf`/`iat`, and requires the email to
+match `ADMIN_EMAIL`. Missing config fails closed with `503`; missing or invalid
+tokens return `401`/`403`. Admin requests are rate-limited and audit-logged, and
+the admin CSP is a strict same-origin policy.
+
+### Build and deploy
+
+```bash
+cd admin
+npm ci
+npm run build          # emits dist/admin/* and dist/_headers
+cd ../worker
+npx wrangler deploy    # uploads admin/dist as Worker assets
+```
+
+`admin/package.json` moves the Vite output under `dist/admin/` so the SPA is
+not accidentally served at the Worker root. `admin/dist` is generated and
+git-ignored.
+
+### Admin features
+
+- Overview counts, pending comments, unread messages, latest activity.
+- Comment moderation: approve, reject, spam, delete, bulk actions, blocklist.
+- Contact messages: read/unread, archive, delete, CSV export.
+- Reactions, live activity, site status, GitHub rebuild trigger.
+- Settings: comment auto-approve (off by default).
+- 20-row pagination, optimistic updates with rollback, mobile-first dark theme.
+- Keyboard shortcuts on the comments page: `a` approve, `r` reject, `j`/`k`
+  move, `d` delete.
+- Access-session expiry wall with a same-origin sign-in link.
+
+### Admin verification checklist
+
+Run these from a machine without an Access session:
+
+```bash
+API=https://dipo-portfolio-worker.agbooladipo624.workers.dev
+
+# 1. Unauthenticated admin requests are rejected (302 to Access login).
+curl -sI "$API/admin" | head -n 5
+curl -sI "$API/admin/session" | head -n 5
+
+# 2. The SPA assets are protected too.
+curl -sI "$API/admin/assets/" | head -n 5
+
+# 3. The Worker root does not serve the admin SPA.
+curl -sI "$API/" | head -n 5          # expect 404, not the admin HTML
+
+# 4. Public API stays public.
+curl -s "$API/api/health"             # {"ok":true}
+```
+
+Then sign in with the allowed email:
+
+1. Open `.../admin/` and complete the Access login.
+2. Confirm the overview loads and the session email is `ADMIN_EMAIL`.
+3. Approve a pending comment, then open the public post and confirm it appears.
+4. Reject another comment and confirm it does **not** appear publicly.
+5. Sign in with a different email in a private window and confirm Access denies
+   it before the Worker is reached.
+6. Check the response headers on `/admin/` include `Content-Security-Policy`.
+
 ## Turnstile and CORS
 
 The existing widget allows `localhost`, `127.0.0.1`,
@@ -252,30 +365,18 @@ serves it automatically.
 
 ## Moderation
 
-Comments are inserted as `pending` and never rendered until approved. There is
-no admin UI; use the Worker API with `ADMIN_TOKEN`:
+Comments are inserted as `pending` and never rendered until approved. The
+public comment query only selects `approved` rows, so `pending`, `rejected`,
+and `spam` comments cannot leak through the API.
 
-```bash
-API=https://dipo-portfolio-worker.agbooladipo624.workers.dev
-TOKEN=your-admin-token
+Use the admin UI at `.../admin/` for moderation. Valid statuses are `pending`,
+`approved`, `rejected`, and `spam`. The Worker also scans new comments against
+the `blocklist`; blocked content is stored as `spam`.
 
-# List pending comments
-curl -s "$API/api/admin/comments?status=pending" \
-  -H "Authorization: Bearer $TOKEN"
-
-# Approve or reject one
-curl -s -X PATCH "$API/api/admin/comments/12" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"status":"approved"}'
-
-# Read contact submissions (also emailed via Resend)
-curl -s "$API/api/admin/submissions" \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-Valid comment statuses: `pending`, `approved`, `rejected`. Contact submissions
-are stored even if the Resend call fails, so a mail outage does not lose a lead.
+Contact submissions are stored even if the Resend call fails, so a mail outage
+does not lose a lead. They are available in the admin Messages page and via
+CSV export. The daily GitHub Actions cron remains the fallback if a Sanity
+webhook is missed.
 
 ## Content rules
 
@@ -309,6 +410,7 @@ src/
   pages/            All routes, RSS, robots, OG endpoint
   styles/           Theme tokens and component CSS
 studio/             Hosted Sanity Studio + schemas + seed import
-worker/             Cloudflare Worker, D1 schema, wrangler config
+admin/              Preact + Vite admin SPA; built into worker assets
+worker/             Cloudflare Worker, D1 migrations, wrangler config
 public/             Favicon, manifest, touch icon; no _headers
 ```

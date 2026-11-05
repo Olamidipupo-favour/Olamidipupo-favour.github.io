@@ -151,8 +151,6 @@ import {
     });
 
     const applySound = (on: boolean) => {
-      root.dataset.sound = on ? "on" : "off";
-      localStorage.setItem("dipo-sound", on ? "on" : "off");
       soundButton?.setAttribute("aria-pressed", String(on));
       soundButton?.setAttribute(
         "aria-label",
@@ -163,11 +161,28 @@ import {
       soundOff?.classList.toggle("hidden", on);
     };
     applySound(localStorage.getItem("dipo-sound") === "on");
+    let soundStarted = false;
     soundButton?.addEventListener("click", () => {
-      const on = localStorage.getItem("dipo-sound") !== "on";
+      // Saved "on" but not playing yet: the click starts audio instead of switching it off.
+      const on = localStorage.getItem("dipo-sound") !== "on" || !soundStarted;
+      setSound(on);
       applySound(on);
-      if (on) setSound(true);
+      soundStarted = on;
     });
+
+    // Saved "on" resumes on the first gesture the browser will accept; the toggle itself is excluded.
+    if (localStorage.getItem("dipo-sound") === "on" && soundButton) {
+      const resume = (event: Event) => {
+        if (soundButton.contains(event.target as Node)) return;
+        window.removeEventListener("pointerdown", resume);
+        window.removeEventListener("keydown", resume);
+        setSound(true);
+        applySound(true);
+        soundStarted = true;
+      };
+      window.addEventListener("pointerdown", resume);
+      window.addEventListener("keydown", resume);
+    }
 
     // Draggable dock. Pointer drag is an enhancement; every control stays keyboard usable.
     let dragging = false;

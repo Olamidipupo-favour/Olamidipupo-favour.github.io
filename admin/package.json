@@ -1,0 +1,21 @@
+{
+  "name": "dipo-portfolio-admin",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5174",
+    "build": "rm -rf dist && tsc --noEmit && vite build && mkdir -p dist/admin && mv dist/index.html dist/assets dist/admin/",
+    "preview": "vite preview",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "preact": "^10.29.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.0"
+  }
+}

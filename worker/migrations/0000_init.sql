@@ -1,4 +1,5 @@
--- D1 schema for the portfolio Worker. Run local and remote once.
+-- Baseline schema. A fresh database is created by migrations alone. Existing
+-- databases already have these tables; CREATE IF NOT EXISTS makes this a no-op.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS reactions (

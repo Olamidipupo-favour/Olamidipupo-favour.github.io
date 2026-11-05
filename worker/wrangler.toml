@@ -3,6 +3,21 @@ main = "src/index.ts"
 compatibility_date = "2026-01-01"
 workers_dev = true
 
+# Access needs a hostname on a zone in this account. workers.dev is not a zone,
+# so protecting /admin there loops at login.
+[[routes]]
+pattern = "dipo-admin.studara.name.ng"
+custom_domain = true
+
+[assets]
+directory = "../admin/dist"
+binding = "ASSETS"
+# The Worker rewrites /admin/ to /admin/index.html itself. The default
+# auto-trailing-slash would 307 that path back to /admin/, looping forever.
+html_handling = "none"
+not_found_handling = "none"
+run_worker_first = ["/api/*", "/admin", "/admin/*", "/rebuild"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "dipo"
@@ -15,7 +30,11 @@ TURNSTILE_HOSTNAMES = "olamidipupo-favour.github.io,studara.name.ng"
 GITHUB_REPO = "olamidipupo-favour/Olamidipupo-favour.github.io"
 CONTACT_TO = "dipoagboola2019@gmail.com"
 CONTACT_FROM = "Dipo Portfolio <noreply@getwiki.ng>"
+ADMIN_ORIGIN = "https://dipo-admin.studara.name.ng"
+ADMIN_EMAIL = "agbooladipo624@gmail.com"
+CF_ACCESS_TEAM_DOMAIN = "https://zeus32.cloudflareaccess.com"
+CF_ACCESS_AUD = "6bd3eb874d622cf508b54e725dab9ea251743c63fb7c4b062b51f9de5b59e84e"
 
 # Secrets (set with `wrangler secret put <NAME>`):
-# TURNSTILE_SECRET, RESEND_API_KEY, ADMIN_TOKEN, REACTION_SALT,
+# TURNSTILE_SECRET, RESEND_API_KEY, REACTION_SALT,
 # SANITY_WEBHOOK_SECRET, GITHUB_TOKEN

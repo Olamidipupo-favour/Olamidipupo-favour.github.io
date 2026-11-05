@@ -5,13 +5,18 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:local": "wrangler d1 execute dipo-portfolio --local --file=./schema.sql",
-    "db:remote": "wrangler d1 execute dipo-portfolio --remote --file=./schema.sql",
-    "check": "tsc --noEmit"
+    "db:migrate:local": "wrangler d1 migrations apply dipo --local",
+    "db:migrate:remote": "wrangler d1 migrations apply dipo --remote",
+    "check": "tsc --noEmit",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261103.1",
     "typescript": "^5.9.3",
+    "vitest": "^5.1.0",
     "wrangler": "^4.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
   }
 }
