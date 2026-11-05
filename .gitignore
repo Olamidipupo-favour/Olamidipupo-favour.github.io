@@ -1,6 +1,4 @@
 # Ignore local secrets, build output and tool state.
-.env
-.env.*
 !.env.example
 .dev.vars
 .dev.vars.*
@@ -12,3 +10,4 @@ dist/
 node_modules/
 .DS_Store
 *.log
+config.bat
