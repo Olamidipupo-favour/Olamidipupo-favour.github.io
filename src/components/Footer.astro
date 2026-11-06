@@ -18,9 +18,7 @@ const socialIcon = (label: string) =>
         : ArrowUpRight;
 ---
 
-<footer class="relative mt-24 border-t-2 border-ink bg-surface" data-footer>
-  <div class="halftone absolute inset-0 opacity-40" aria-hidden="true"></div>
-
+<footer class="relative mt-24 border-t border-line bg-surface" data-footer>
   <div class="shell relative py-16 sm:py-20">
     <p class="chapter-kicker">Final chapter</p>
     <a
@@ -29,7 +27,7 @@ const socialIcon = (label: string) =>
       aria-label="Let's make it real — go to contact"
     >
       <span
-        class="sfx ortho-shadow block text-[clamp(3rem,10vw,8rem)] text-ink"
+        class="sfx block text-[clamp(3rem,10vw,8rem)] text-ink transition-colors group-hover:text-accent"
       >
         Let's make<br class="sm:hidden" /> it real
       </span>

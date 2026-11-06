@@ -5,52 +5,53 @@
 @layer base {
   :root {
     color-scheme: dark;
-    --bg: 10 13 12;
-    --surface: 16 21 19;
-    --raised: 22 29 25;
-    --ink: 232 240 234;
-    --muted: 154 168 160;
-    --line: 41 54 46;
-    --accent: 34 197 94;
-    --accent-2: 56 189 248;
-    --accent-3: 250 204 21;
-    --accent-ink: 4 23 11;
-    --danger: 248 113 113;
-    --dot: 232 240 234;
-    --paper: 10 13 12;
+    /* Editorial dark: warm off-black paper, bone ink, one brass accent. */
+    --bg: 13 13 14;
+    --surface: 19 19 21;
+    --raised: 27 27 30;
+    --ink: 235 231 223;
+    --muted: 158 152 143;
+    --line: 45 45 49;
+    --accent: 200 162 95;
+    --accent-2: 200 162 95;
+    --accent-3: 200 162 95;
+    --accent-ink: 22 17 8;
+    --danger: 206 118 103;
+    --dot: 235 231 223;
+    --paper: 13 13 14;
   }
 
   [data-theme="amber"] {
     color-scheme: dark;
-    --bg: 18 13 7;
-    --surface: 27 20 11;
-    --raised: 36 27 14;
-    --ink: 245 236 217;
-    --muted: 187 168 137;
-    --line: 65 48 26;
-    --accent: 245 158 11;
-    --accent-2: 251 146 60;
-    --accent-3: 250 204 21;
-    --accent-ink: 30 18 2;
-    --danger: 252 165 165;
-    --dot: 245 236 217;
-    --paper: 250 247 239;
+    --bg: 21 18 14;
+    --surface: 28 24 19;
+    --raised: 37 32 25;
+    --ink: 240 232 217;
+    --muted: 186 173 152;
+    --line: 63 55 43;
+    --accent: 214 168 96;
+    --accent-2: 214 168 96;
+    --accent-3: 214 168 96;
+    --accent-ink: 24 18 8;
+    --danger: 220 140 120;
+    --dot: 240 232 217;
+    --paper: 21 18 14;
   }
 
   [data-theme="light"] {
     color-scheme: light;
-    --bg: 246 244 236;
-    --surface: 255 255 255;
-    --raised: 238 236 226;
-    --ink: 17 21 15;
-    --muted: 79 92 82;
-    --line: 188 194 183;
-    --accent: 21 128 61;
-    --accent-2: 3 105 161;
-    --accent-3: 161 98 7;
+    --bg: 245 242 235;
+    --surface: 252 250 245;
+    --raised: 235 230 220;
+    --ink: 26 24 20;
+    --muted: 95 89 79;
+    --line: 200 192 178;
+    --accent: 138 98 33;
+    --accent-2: 138 98 33;
+    --accent-3: 138 98 33;
     --accent-ink: 255 255 255;
-    --danger: 185 28 28;
-    --dot: 17 21 15;
+    --danger: 168 55 44;
+    --dot: 26 24 20;
     --paper: 255 255 255;
   }
 
@@ -156,90 +157,78 @@
   }
 
   .panel {
-    @apply border-2 border-ink/80;
-    box-shadow: 6px 6px 0 0 rgb(var(--ink) / 0.92);
+    @apply border border-line bg-surface;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
   }
 
   .panel-accent {
-    @apply border-2 border-accent;
-    box-shadow: 6px 6px 0 0 rgb(var(--accent) / 0.9);
+    @apply border border-accent/60 bg-surface;
   }
 
   .halftone {
     background-image: radial-gradient(
-      rgb(var(--dot) / 0.16) 1.1px,
-      transparent 1.2px
+      rgb(var(--dot) / 0.07) 1px,
+      transparent 1.1px
     );
-    background-size: 9px 9px;
+    background-size: 14px 14px;
   }
 
   .halftone-accent {
     background-image: radial-gradient(
-      rgb(var(--accent) / 0.35) 1.2px,
-      transparent 1.3px
+      rgb(var(--accent) / 0.12) 1px,
+      transparent 1.1px
     );
-    background-size: 8px 8px;
+    background-size: 12px 12px;
   }
 
   .speedlines {
     background-image: repeating-linear-gradient(
       104deg,
       transparent 0,
-      transparent 10px,
-      rgb(var(--ink) / 0.07) 10px,
-      rgb(var(--ink) / 0.07) 11px
+      transparent 22px,
+      rgb(var(--ink) / 0.025) 22px,
+      rgb(var(--ink) / 0.025) 23px
     );
   }
 
   .sfx {
-    @apply font-display font-black italic uppercase leading-[0.82] tracking-[-0.03em];
+    @apply font-display font-normal leading-[0.95] tracking-[-0.02em];
   }
 
   .chapter-kicker {
-    @apply font-mono text-xs font-medium uppercase tracking-[0.22em] text-accent;
+    @apply font-mono text-[0.66rem] font-medium uppercase tracking-[0.24em] text-accent;
   }
 
   .chapter-title {
-    @apply font-display text-3xl font-black italic tracking-[-0.035em] sm:text-4xl lg:text-5xl;
+    @apply font-display text-[clamp(2rem,4.2vw,3.25rem)] font-normal leading-[1.05] tracking-[-0.02em];
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 border-2 border-ink px-4 py-2.5 font-mono text-sm font-bold transition-colors;
-    box-shadow: 3px 3px 0 0 rgb(var(--ink));
+    @apply inline-flex items-center justify-center gap-2 border border-line px-4 py-2.5 font-mono text-[0.68rem] font-medium uppercase tracking-[0.12em] transition-colors;
   }
 
   .btn:hover {
-    @apply -translate-x-0.5 -translate-y-0.5;
-    box-shadow: 5px 5px 0 0 rgb(var(--ink));
-  }
-
-  .btn:active {
-    @apply translate-x-0.5 translate-y-0.5;
-    box-shadow: 1px 1px 0 0 rgb(var(--ink));
+    @apply border-accent text-accent;
   }
 
   .btn-primary {
     @apply border-accent bg-accent text-accent-ink;
-    box-shadow: 3px 3px 0 0 rgb(var(--ink));
   }
 
   .btn-primary:hover {
-    box-shadow: 5px 5px 0 0 rgb(var(--ink));
+    @apply bg-accent/90 text-accent-ink;
   }
 
   .btn-ghost {
     @apply border-line bg-transparent text-ink;
-    box-shadow: none;
   }
 
   .btn-ghost:hover {
     @apply border-accent text-accent;
-    box-shadow: none;
   }
 
   .btn-sm {
-    @apply px-3 py-1.5 text-xs;
-    box-shadow: 2px 2px 0 0 rgb(var(--ink));
+    @apply px-3 py-1.5 text-[0.6rem];
   }
 
   .link-underline {
@@ -247,7 +236,7 @@
   }
 
   .input {
-    @apply w-full border-2 border-line bg-bg px-3 py-2.5 font-sans text-base text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none;
+    @apply w-full border border-line bg-bg px-3 py-2.5 font-sans text-base text-ink placeholder:text-muted/70 focus:border-accent focus:outline-none;
   }
 
   .label {
@@ -263,11 +252,11 @@
   }
 
   .prose-manga h2 {
-    @apply mt-10 font-display text-2xl font-black italic tracking-tight sm:text-3xl;
+    @apply mt-10 font-display text-2xl font-medium tracking-tight sm:text-3xl;
   }
 
   .prose-manga h3 {
-    @apply mt-8 font-display text-xl font-bold italic tracking-tight sm:text-2xl;
+    @apply mt-8 font-display text-xl font-medium tracking-tight sm:text-2xl;
   }
 
   .prose-manga p {
@@ -299,7 +288,7 @@
   }
 
   .prose-manga blockquote {
-    @apply border-l-4 border-accent bg-surface px-5 py-4 font-display text-lg italic;
+    @apply border-l border-accent bg-surface px-5 py-4 font-display text-lg italic;
   }
 
   .prose-manga figure {
@@ -307,7 +296,7 @@
   }
 
   .prose-manga img {
-    @apply border-2 border-ink;
+    @apply border border-line;
   }
 
   .prose-manga figcaption {
@@ -319,8 +308,7 @@
   }
 
   .terminal-window {
-    @apply border-2 border-line bg-[rgb(var(--bg))];
-    box-shadow: inset 0 0 0 1px rgb(var(--ink) / 0.04);
+    @apply border border-line bg-[rgb(var(--bg))];
   }
 
   .terminal-bar {
@@ -358,8 +346,8 @@
   }
 
   .dock {
-    @apply flex select-none items-center gap-0.5 border-2 border-ink bg-surface p-1.5;
-    box-shadow: 4px 4px 0 0 rgb(var(--ink));
+    @apply flex select-none items-center gap-0.5 border border-line bg-surface/95 p-1.5 backdrop-blur;
+    box-shadow: 0 18px 40px -28px rgb(0 0 0 / 0.9);
   }
 
   .dock-btn {
@@ -383,15 +371,6 @@
     @apply absolute -bottom-1 left-0 right-0 h-0.5 bg-accent;
   }
 
-  .project-card-ui {
-    @apply absolute inset-x-3 bottom-0 translate-y-[105%] border-2 border-ink bg-bg p-3 transition-transform duration-300 ease-out;
-  }
-
-  .project-card:hover .project-card-ui,
-  .project-card:focus-within .project-card-ui {
-    @apply translate-y-3;
-  }
-
   .modal {
     @apply fixed inset-0 z-[160] hidden items-center justify-center bg-black/70 p-4 backdrop-blur-sm;
   }
@@ -402,8 +381,8 @@
   }
 
   .modal-panel {
-    @apply relative max-h-[88vh] w-full max-w-2xl overflow-y-auto border-2 border-ink bg-bg p-6 sm:p-8;
-    box-shadow: 8px 8px 0 0 rgb(var(--ink));
+    @apply relative max-h-[88vh] w-full max-w-2xl overflow-y-auto border border-line bg-bg p-6 sm:p-8;
+    box-shadow: 0 32px 80px -40px rgb(0 0 0 / 0.9);
   }
 
   .modal-close {
@@ -418,20 +397,6 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-
-  .ortho-shadow {
-    text-shadow: 5px 5px 0 rgb(var(--accent));
-    transition: text-shadow 220ms ease, transform 220ms ease;
-  }
-
-  .ortho-shadow:hover {
-    text-shadow: 10px 10px 0 rgb(var(--accent)), 14px 14px 0 rgb(var(--ink) / 0.18);
-    transform: translate(-2px, -2px);
-  }
-
-  .rotate-sfx {
-    transform: rotate(-3deg);
   }
 }
 

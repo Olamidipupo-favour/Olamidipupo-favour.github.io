@@ -25,7 +25,7 @@ const sizes = {
       height={settings.avatar.height ?? 512}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
-      class:list={[sizes[size], "border-2 border-ink object-cover"]}
+      class:list={[sizes[size], "border border-line object-cover"]}
     />
   ) : (
     <img
@@ -35,7 +35,7 @@ const sizes = {
       height="256"
       loading={eager ? "eager" : "lazy"}
       decoding="async"
-      class:list={[sizes[size], "border-2 border-ink object-cover [image-rendering:pixelated]"]}
+      class:list={[sizes[size], "border border-line object-cover [image-rendering:pixelated]"]}
     />
   )
 }
