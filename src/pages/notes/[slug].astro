@@ -69,7 +69,7 @@ const jsonLd = {
       <div class="flex flex-wrap items-center gap-2">
         {post.tags.map((tag) => <span class="tag tag-accent">{tag}</span>)}
       </div>
-      <h1 class="mt-4 font-display text-[clamp(2.4rem,7vw,4.6rem)] font-black italic leading-[0.95] tracking-[-0.04em]">
+      <h1 class="mt-4 font-display text-[clamp(2.4rem,7vw,4.6rem)] font-medium leading-[0.95] tracking-[-0.04em]">
         {post.title}
       </h1>
       <p class="mt-5 max-w-2xl text-base leading-7 text-muted">{post.excerpt}</p>
@@ -88,7 +88,7 @@ const jsonLd = {
         alt={post.cover.alt || post.title}
         width={post.cover.width ?? 1600}
         height={post.cover.height ?? 900}
-        class="mt-8 max-h-[32rem] w-full border-2 border-ink object-cover"
+        class="mt-8 max-h-[32rem] w-full border border-line object-cover"
         loading="eager"
         decoding="async"
       />
@@ -116,11 +116,11 @@ const jsonLd = {
       <CommentSection slug={post.slug} />
     </div>
 
-    <div class="mt-12 max-w-3xl border-t-2 border-ink pt-8">
+    <div class="mt-12 max-w-3xl border-t border-line pt-8">
       <div class="flex items-center gap-4">
         <Avatar settings={settings} size="md" />
         <div>
-          <p class="font-display text-xl font-black italic">{settings.name}</p>
+          <p class="font-display text-xl font-medium">{settings.name}</p>
           <p class="mt-1 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-accent">
             Backend engineer · future doctor
           </p>

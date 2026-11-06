@@ -11,13 +11,15 @@ export default {
         muted: "rgb(var(--muted) / <alpha-value>)",
         line: "rgb(var(--line) / <alpha-value>)",
         accent: "rgb(var(--accent) / <alpha-value>)",
+        "accent-2": "rgb(var(--accent-2) / <alpha-value>)",
+        "accent-3": "rgb(var(--accent-3) / <alpha-value>)",
         "accent-ink": "rgb(var(--accent-ink) / <alpha-value>)",
         danger: "rgb(var(--danger) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["Inter Variable", "Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono Variable", "JetBrains Mono", "ui-monospace", "monospace"],
-        display: ["Archivo Variable", "Archivo", "Inter Variable", "sans-serif"],
+        display: ["Newsreader Variable", "Newsreader", "Georgia", "serif"],
       },
       maxWidth: {
         prose: "68ch",
@@ -27,9 +29,9 @@ export default {
         3: "3px",
       },
       boxShadow: {
-        panel: "6px 6px 0 0 rgb(var(--ink))",
-        "panel-sm": "3px 3px 0 0 rgb(var(--ink))",
-        glow: "0 0 40px 0 rgb(var(--accent) / 0.28)",
+        panel: "0 24px 60px -48px rgb(0 0 0 / 0.9)",
+        "panel-sm": "0 1px 2px rgb(0 0 0 / 0.3)",
+        glow: "0 0 40px 0 rgb(var(--accent) / 0.18)",
       },
       keyframes: {
         blink: { "0%,49%": { opacity: "1" }, "50%,100%": { opacity: "0" } },

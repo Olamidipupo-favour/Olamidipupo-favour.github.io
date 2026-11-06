@@ -10,7 +10,7 @@ interface Props {
 const { service, index } = Astro.props;
 ---
 
-<article class="group relative border-2 border-line bg-surface p-6 transition duration-200 hover:-translate-y-1 hover:border-accent sm:p-8">
+<article class="group relative border border-line bg-surface p-6 transition duration-200 hover:-translate-y-1 hover:border-accent sm:p-8">
   <div class="flex items-start justify-between gap-4">
     <p class="font-mono text-[0.6rem] uppercase tracking-[0.18em] text-muted">
       Service {String(index + 1).padStart(2, "0")}
@@ -22,7 +22,7 @@ const { service, index } = Astro.props;
     )}
   </div>
 
-  <h3 class="mt-4 font-display text-2xl font-black italic tracking-tight sm:text-3xl">
+  <h3 class="mt-4 font-display text-2xl font-medium tracking-tight sm:text-3xl">
     {service.title}
   </h3>
   <p class="mt-3 max-w-prose text-sm leading-6 text-muted">{service.description}</p>
