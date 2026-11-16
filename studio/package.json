@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "sanity dev",
-    "start": "sanity dev",
-    "build": "sanity build",
+    "dev": "node init && sanity dev",
+    "start": "node init && sanity dev",
+    "build": "node init && sanity build",
     "deploy": "sanity deploy",
     "schema": "sanity schema extract"
   },

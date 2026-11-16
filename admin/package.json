@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5174",
-    "build": "rm -rf dist && tsc --noEmit && vite build && mkdir -p dist/admin && mv dist/index.html dist/assets dist/admin/",
+    "dev": "node init && vite --port 5174",
+    "build": "node init && rm -rf dist && tsc --noEmit && vite build && mkdir -p dist/admin && mv dist/index.html dist/assets dist/admin/",
     "preview": "vite preview",
     "check": "tsc --noEmit"
   },
