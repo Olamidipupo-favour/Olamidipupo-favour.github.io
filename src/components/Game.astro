@@ -3,7 +3,7 @@ import { Gamepad2, X } from "lucide-astro";
 ---
 
 <dialog class="game-dialog" data-game aria-labelledby="game-title">
-  <div class="w-full max-w-3xl border-2 border-ink bg-bg shadow-panel">
+  <div class="w-full max-w-3xl border border-line bg-bg shadow-panel">
     <div class="flex items-center gap-3 border-b border-line px-4 py-3">
       <Gamepad2 class="h-4 w-4 text-accent" aria-hidden="true" />
       <h2 id="game-title" class="font-mono text-xs uppercase tracking-[0.16em]">
@@ -37,7 +37,7 @@ import { Gamepad2, X } from "lucide-astro";
         <canvas
           width="720"
           height="420"
-          class="block w-full border-2 border-line bg-[#070a08]"
+          class="block w-full border border-line bg-[#070a08]"
           data-game-canvas
           role="application"
           tabindex="0"
@@ -47,7 +47,7 @@ import { Gamepad2, X } from "lucide-astro";
           class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#070a08]/88 p-6 text-center"
           data-game-overlay
         >
-          <p class="font-display text-3xl font-black italic text-[#E8F0EA]">
+          <p class="font-display text-3xl font-medium text-[#EBE7DF]">
             Keep the Uptime
           </p>
           <p class="max-w-sm font-mono text-[0.7rem] leading-5 text-[#9AA8A0]">
@@ -208,12 +208,12 @@ import { Gamepad2, X } from "lucide-astro";
       ctx.fillStyle = "#0F1712";
       ctx.fillRect(0, H - 14, W, 14);
 
-      ctx.fillStyle = "#E8F0EA";
+      ctx.fillStyle = "#EBE7DF";
       ctx.font = "700 13px monospace";
       ctx.fillText("dipo@portfolio:~$ uptime --watch", 14, 20);
 
       for (const drop of drops) {
-        ctx.fillStyle = drop.type === "ok" ? "#22C55E" : "#F87171";
+        ctx.fillStyle = drop.type === "ok" ? "#C8A25F" : "#F87171";
         ctx.fillRect(drop.x - 22, drop.y - 12, 44, 24);
         ctx.fillStyle = "#06100A";
         ctx.font = "700 11px monospace";
@@ -222,11 +222,11 @@ import { Gamepad2, X } from "lucide-astro";
         ctx.textAlign = "left";
       }
 
-      ctx.fillStyle = "#22C55E";
+      ctx.fillStyle = "#C8A25F";
       ctx.fillRect(player.x, player.y, player.w, player.h);
       ctx.fillStyle = "#070A08";
       ctx.fillRect(player.x + 4, player.y + 4, player.w - 8, 4);
-      ctx.fillStyle = "#E8F0EA";
+      ctx.fillStyle = "#EBE7DF";
       ctx.fillRect(player.x + player.w / 2 - 2, player.y + 5, 4, 4);
       ctx.fillStyle = "#24402E";
       ctx.fillRect(player.x + 10, player.y + player.h, 6, 6);

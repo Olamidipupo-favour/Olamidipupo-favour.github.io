@@ -16,7 +16,7 @@ const { testimonials, settings } = Astro.props;
       {testimonials.map((item, index) => (
         <figure
           class:list={[
-            "group relative border-2 border-line bg-surface p-6 transition duration-200 hover:-translate-y-1 hover:border-accent focus-within:border-accent sm:p-8",
+            "group relative border border-line bg-surface p-6 transition duration-200 hover:-translate-y-1 hover:border-accent focus-within:border-accent sm:p-8",
             index % 2 === 1 && "md:translate-y-6",
           ]}
         >
@@ -68,7 +68,7 @@ const { testimonials, settings } = Astro.props;
         <div class="halftone absolute inset-0 opacity-40" aria-hidden="true" />
         <div class="relative">
           <Quote class="h-8 w-8 text-accent" aria-hidden="true" />
-          <p class="mt-4 font-display text-3xl font-black italic leading-tight sm:text-4xl">
+          <p class="mt-4 font-display text-3xl font-medium leading-tight sm:text-4xl">
             Your team?
           </p>
           <p class="mt-3 max-w-[38ch] text-sm leading-6 text-muted">
@@ -81,7 +81,7 @@ const { testimonials, settings } = Astro.props;
           </a>
         </div>
       </div>
-      <div class="flex flex-col justify-between border-2 border-dashed border-line p-6">
+      <div class="flex flex-col justify-between border border-dashed border-line p-6">
         <p class="font-mono text-[0.64rem] uppercase leading-5 tracking-[0.12em] text-muted">
           The honest version
         </p>

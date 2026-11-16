@@ -71,7 +71,7 @@ const jsonLd = {
                 <span class="tag">{project.metrics[0].value} {project.metrics[0].label}</span>
               )}
             </div>
-            <h1 class="mt-4 font-display text-[clamp(3rem,9vw,6.5rem)] font-black italic leading-[0.9] tracking-[-0.05em]">
+            <h1 class="mt-4 font-display text-[clamp(3rem,9vw,6.5rem)] font-medium leading-[0.9] tracking-[-0.05em]">
               {project.title}
             </h1>
             <p class="mt-5 max-w-2xl text-base leading-7 text-muted sm:text-lg">
@@ -79,7 +79,7 @@ const jsonLd = {
             </p>
           </div>
 
-          <aside class="border-t-2 border-ink pt-4 lg:border-l-2 lg:border-t-0 lg:pl-6 lg:pt-0">
+          <aside class="border-t border-line pt-4 lg:border-l-2 lg:border-t-0 lg:pl-6 lg:pt-0">
             <dl class="space-y-5">
               <div>
                 <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">Stack</dt>
@@ -94,7 +94,7 @@ const jsonLd = {
                     {project.metrics.map((metric) => (
                       <div class="flex items-baseline justify-between gap-3 border-b border-line pb-1.5">
                         <span class="text-xs text-muted">{metric.label}</span>
-                        <span class="font-display text-lg font-black italic">{metric.value}</span>
+                        <span class="font-display text-lg font-medium">{metric.value}</span>
                       </div>
                     ))}
                   </dd>
@@ -130,7 +130,7 @@ const jsonLd = {
           alt={project.cover.alt || `${project.title} cover image`}
           width={project.cover.width ?? 1600}
           height={project.cover.height ?? 900}
-          class="max-h-[34rem] w-full border-2 border-ink object-cover"
+          class="max-h-[34rem] w-full border border-line object-cover"
           loading="eager"
           decoding="async"
         />
@@ -152,7 +152,7 @@ const jsonLd = {
               <section>
                 <div class="flex items-baseline gap-3 border-b border-line pb-2">
                   <span class="font-mono text-[0.6rem] text-accent">{section.number}</span>
-                  <h2 class="font-display text-2xl font-black italic tracking-tight sm:text-3xl">
+                  <h2 class="font-display text-2xl font-medium tracking-tight sm:text-3xl">
                     {section.title}
                   </h2>
                 </div>
@@ -166,8 +166,8 @@ const jsonLd = {
 
         {
           project.bodyHtml && (
-            <section class="mt-12 border-t-2 border-ink pt-8">
-              <h2 class="font-display text-2xl font-black italic tracking-tight sm:text-3xl">
+            <section class="mt-12 border-t border-line pt-8">
+              <h2 class="font-display text-2xl font-medium tracking-tight sm:text-3xl">
                 Field notes
               </h2>
               <div class="prose-manga mt-5" set:html={project.bodyHtml} />
@@ -189,7 +189,7 @@ const jsonLd = {
       </div>
 
       <aside class="space-y-6">
-        <div class="border-2 border-line p-5">
+        <div class="border border-line p-5">
           <p class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">Working together</p>
           <p class="mt-2 text-sm leading-6">
             Need this kind of backend work done properly? I am open to remote
@@ -200,7 +200,7 @@ const jsonLd = {
         <div class="halftone-accent border border-line p-5">
           <p class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">Next case</p>
           <a
-            class="mt-2 inline-flex items-center gap-2 font-display text-xl font-black italic hover:text-accent"
+            class="mt-2 inline-flex items-center gap-2 font-display text-xl font-medium hover:text-accent"
             href={withBase(`/projects/${next.slug}`)}
           >
             {next.title}

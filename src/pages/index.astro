@@ -10,7 +10,7 @@ import Testimonials from "@/components/Testimonials.astro";
 import EmptyState from "@/components/EmptyState.astro";
 import Avatar from "@/components/Avatar.astro";
 import { getContent } from "@/lib/content";
-import { formatDate, withBase } from "@/lib/utils";
+import { formatDate, isPlaceholder, withBase } from "@/lib/utils";
 
 const content = await getContent();
 const { settings, projects, posts, experience } = content;
@@ -47,7 +47,7 @@ const currentRole = experience.find((job) => job.current);
 
     {
       featured.length > 0 ? (
-        <div class="mt-8 grid gap-5 md:grid-cols-2">
+        <div class="mt-10 border-b border-line">
           {featured.map((project, index) => (
             <ProjectCard project={project} index={index} />
           ))}
@@ -109,25 +109,28 @@ const currentRole = experience.find((job) => job.current);
         </div>
       </div>
 
-      <aside class="panel relative overflow-hidden bg-surface p-6 sm:p-8">
-        <div class="halftone absolute inset-0 opacity-40" aria-hidden="true"></div>
+      <aside class="panel p-6 sm:p-8">
         <div class="relative">
           <div class="flex items-center gap-3">
             <Avatar settings={settings} size="md" />
             <div>
-              <p class="font-display text-xl font-black italic">{settings.shortName}</p>
+              <p class="font-display text-xl font-medium">{settings.shortName}</p>
               <p class="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-accent">
                 {currentRole ? currentRole.role : "Backend engineer"}
               </p>
             </div>
           </div>
           <dl class="mt-6 space-y-4 border-t border-line pt-5 text-sm">
-            <div>
-              <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
-                Now building
-              </dt>
-              <dd class="mt-1 leading-6 text-ink/90">{settings.nowBuilding}</dd>
-            </div>
+            {
+              !isPlaceholder(settings.nowBuilding) && (
+                <div>
+                  <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
+                    Now building
+                  </dt>
+                  <dd class="mt-1 leading-6 text-ink/90">{settings.nowBuilding}</dd>
+                </div>
+              )
+            }
             <div>
               <dt class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted">
                 Currently
@@ -167,8 +170,7 @@ const currentRole = experience.find((job) => job.current);
   </section>
 
   <section class="shell py-16 sm:py-24">
-    <div class="relative overflow-hidden border-2 border-ink p-7 sm:p-12">
-      <div class="halftone-accent absolute inset-0 opacity-50" aria-hidden="true"></div>
+    <div class="relative overflow-hidden border border-line bg-surface p-7 sm:p-12">
       <div class="relative max-w-2xl">
         <p class="chapter-kicker">Chapter 06 · Your move</p>
         <h2 class="chapter-title mt-2 text-4xl sm:text-5xl lg:text-6xl">

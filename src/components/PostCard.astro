@@ -23,7 +23,7 @@ const { post, index = 0 } = Astro.props;
   </div>
 
   <a class="mt-2 block" href={withBase(`/notes/${post.slug}`)}>
-    <h3 class="font-display text-2xl font-black italic leading-tight tracking-tight transition-colors group-hover:text-accent sm:text-3xl">
+    <h3 class="font-display text-2xl font-medium leading-tight tracking-tight transition-colors group-hover:text-accent sm:text-3xl">
       {post.title}
     </h3>
   </a>

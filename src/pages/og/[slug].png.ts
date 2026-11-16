@@ -87,7 +87,7 @@ function ogSvg({ kicker, title, subtitle }: OgProps): string {
   const titleMarkup = lines
     .map(
       (line, index) =>
-        `<text x="72" y="${300 + index * (fontSize + 6)}" font-family="DejaVu Sans, Arial, sans-serif" font-size="${fontSize}" font-weight="900" font-style="italic" fill="#E8F0EA">${escapeXml(line)}</text>`,
+        `<text x="72" y="${300 + index * (fontSize + 6)}" font-family="DejaVu Serif, Georgia, serif" font-size="${fontSize}" font-weight="400" fill="#EBE7DF">${escapeXml(line)}</text>`,
     )
     .join("");
   const subLines = wrap(subtitle, 60).slice(0, 2);
@@ -101,24 +101,24 @@ function ogSvg({ kicker, title, subtitle }: OgProps): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1.4" fill="#22C55E" opacity="0.16"/>
+      <circle cx="2" cy="2" r="1.4" fill="#C8A25F" opacity="0.16"/>
     </pattern>
     <pattern id="lines" width="34" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
-      <rect width="1" height="34" fill="#E8F0EA" opacity="0.05"/>
+      <rect width="1" height="34" fill="#EBE7DF" opacity="0.05"/>
     </pattern>
   </defs>
-  <rect width="1200" height="630" fill="#0A0D0C"/>
+  <rect width="1200" height="630" fill="#0D0D0E"/>
   <rect width="1200" height="630" fill="url(#lines)"/>
   <rect x="0" y="0" width="1200" height="630" fill="url(#dots)"/>
-  <rect x="0" y="0" width="14" height="630" fill="#22C55E"/>
-  <rect x="72" y="54" width="56" height="6" fill="#22C55E"/>
-  <text x="144" y="64" font-family="DejaVu Sans Mono, monospace" font-size="20" letter-spacing="5" fill="#22C55E">${escapeXml(kicker)}</text>
+  <rect x="0" y="0" width="14" height="630" fill="#C8A25F"/>
+  <rect x="72" y="54" width="56" height="6" fill="#C8A25F"/>
+  <text x="144" y="64" font-family="DejaVu Sans Mono, monospace" font-size="20" letter-spacing="5" fill="#C8A25F">${escapeXml(kicker)}</text>
   <text x="72" y="128" font-family="DejaVu Sans Mono, monospace" font-size="24" fill="#9AA8A0">dipo@portfolio:~$ ship --production</text>
   ${titleMarkup}
   ${subMarkup}
   <line x1="72" y1="590" x2="1128" y2="590" stroke="#2A352E" stroke-width="1"/>
   <text x="72" y="620" font-family="DejaVu Sans Mono, monospace" font-size="16" fill="#9AA8A0">dipo.dev</text>
-  <text x="1128" y="620" text-anchor="end" font-family="DejaVu Sans Mono, monospace" font-size="16" fill="#22C55E">99.95% uptime</text>
+  <text x="1128" y="620" text-anchor="end" font-family="DejaVu Sans Mono, monospace" font-size="16" fill="#C8A25F">99.95% uptime</text>
 </svg>`;
 }
 
