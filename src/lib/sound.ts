@@ -1,7 +1,6 @@
-/** Opt-in UI blips and a small violin-style loop. Never runs unless sound is on. */
+/** Opt-in UI blips and a licensed ambient loop. Never runs unless sound is on. */
 let context: AudioContext | null = null;
-let ambientTimer: number | null = null;
-let ambientGain: GainNode | null = null;
+let ambient: HTMLAudioElement | null = null;
 
 function audioContext(): AudioContext | null {
   try {
@@ -41,61 +40,23 @@ export function blip(frequency = 520, duration = 0.06, gain = 0.08) {
   }
 }
 
-// A minor pentatonic phrase. Two oscillators per note give the bowed, violin-ish timbre.
-const NOTES = [440, 523.25, 659.25, 587.33, 493.88, 659.25, 783.99, 587.33];
-const NOTE_MS = 1100;
-
-function ambientNote(ctx: AudioContext, output: GainNode, frequency: number) {
-  const now = ctx.currentTime;
-  const envelope = ctx.createGain();
-  envelope.gain.setValueAtTime(0.0001, now);
-  envelope.gain.exponentialRampToValueAtTime(0.5, now + 0.12);
-  envelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
-  envelope.connect(output);
-
-  const fundamental = ctx.createOscillator();
-  fundamental.type = "triangle";
-  fundamental.frequency.value = frequency;
-
-  const harmonic = ctx.createOscillator();
-  harmonic.type = "sine";
-  harmonic.frequency.value = frequency * 2;
-  const harmonicGain = ctx.createGain();
-  harmonicGain.gain.value = 0.18;
-
-  fundamental.connect(envelope);
-  harmonic.connect(harmonicGain).connect(envelope);
-  fundamental.start(now);
-  harmonic.start(now);
-  fundamental.stop(now + 1);
-  harmonic.stop(now + 1);
-}
+// Licensed lofi jazz loop. Created on the first gesture so autoplay policies never block it.
+const BASE = import.meta.env.BASE_URL.replace(/\/+$/, "");
+const AMBIENT_SRC = `${BASE}/delosound-lofi-jazz-398289.mp3`;
 
 function startAmbient() {
-  if (ambientTimer !== null) return;
-  const ctx = audioContext();
-  if (!ctx) return;
-  const output = ctx.createGain();
-  output.gain.value = 0.22;
-  output.connect(ctx.destination);
-  ambientGain = output;
-
-  let step = 0;
-  const tick = () => {
-    ambientNote(ctx, output, NOTES[step % NOTES.length]);
-    step += 1;
-  };
-  tick();
-  ambientTimer = window.setInterval(tick, NOTE_MS);
+  ambient ??= new Audio(AMBIENT_SRC);
+  ambient.loop = true;
+  ambient.volume = 0.25;
+  void ambient.play().catch(() => {
+    // A blocked play() is not worth a retry loop; the next toggle click starts it.
+  });
 }
 
 function stopAmbient() {
-  if (ambientTimer !== null) {
-    window.clearInterval(ambientTimer);
-    ambientTimer = null;
-  }
-  ambientGain?.disconnect();
-  ambientGain = null;
+  if (!ambient) return;
+  ambient.pause();
+  ambient.currentTime = 0;
 }
 
 export function setSound(on: boolean) {
