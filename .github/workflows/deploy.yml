@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    # main is the live site at /. The design branch is a comparison preview
-    # mounted at /preview/ so both can be judged side by side.
-    branches: [main, design/editorial]
+    # main is the live editorial site at /. The comic branch is built into
+    # /comic/ from the workflow below.
+    branches: [main]
   workflow_dispatch:
   repository_dispatch:
     types: [sanity-publish]
@@ -96,24 +96,24 @@ jobs:
           PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
         run: npm run build
 
-      - name: Check out design branch
-        id: preview
+      - name: Check out comic branch
+        id: comic
         continue-on-error: true
         uses: actions/checkout@v4
         with:
-          ref: design/editorial
-          path: preview
+          ref: comic
+          path: comic
 
-      - name: Install preview dependencies
-        if: steps.preview.outcome == 'success'
-        working-directory: preview
+      - name: Install comic dependencies
+        if: steps.comic.outcome == 'success'
+        working-directory: comic
         run: npm ci
 
-      - name: Build design preview
-        if: steps.preview.outcome == 'success'
-        working-directory: preview
+      - name: Build comic edition
+        if: steps.comic.outcome == 'success'
+        working-directory: comic
         env:
-          BASE_PATH: /preview
+          BASE_PATH: /comic
           PUBLIC_SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
           PUBLIC_SANITY_DATASET: ${{ vars.SANITY_DATASET || 'production' }}
           SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
@@ -122,8 +122,8 @@ jobs:
           PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
         run: |
           npm run build
-          mkdir -p ../site/dist/preview
-          cp -r dist/. ../site/dist/preview/
+          mkdir -p ../site/dist/comic
+          cp -r dist/. ../site/dist/comic/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
