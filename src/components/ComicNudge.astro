@@ -1,0 +1,80 @@
+---
+// A one-off comic bubble that points at the shōnen toggle. Hidden until the page settles.
+---
+
+<aside
+  class="comic-nudge"
+  data-comic-nudge
+  aria-label="Turn on shōnen colours"
+  hidden
+>
+  <span class="comic-nudge-burst" aria-hidden="true">POW!</span>
+  <p class="comic-nudge-eyebrow">Comic reader detected</p>
+  <p class="comic-nudge-body">
+    You read right to left. Hit the sparkle — the whole site inks itself.
+  </p>
+  <div class="comic-nudge-actions">
+    <button type="button" class="comic-nudge-go" data-comic-nudge-go>
+      Ink it
+    </button>
+    <button
+      type="button"
+      class="comic-nudge-close"
+      data-comic-nudge-close
+      aria-label="Dismiss the comic mode suggestion"
+    >
+      Later
+    </button>
+  </div>
+  <span class="comic-nudge-tail" aria-hidden="true"></span>
+</aside>
+
+<script>
+  const SEEN = "dipo-comic-nudge";
+  let timer: number | null = null;
+
+  const initNudge = () => {
+    const nudge = document.querySelector<HTMLElement>("[data-comic-nudge]");
+    const toggle =
+      document.querySelector<HTMLButtonElement>("[data-shonen-toggle]");
+    if (!nudge || !toggle || nudge.dataset.ready === "true") return;
+    nudge.dataset.ready = "true";
+
+    const hide = (remember: boolean) => {
+      nudge.hidden = true;
+      nudge.dataset.visible = "false";
+      if (remember) localStorage.setItem(SEEN, "seen");
+    };
+
+    nudge
+      .querySelector("[data-comic-nudge-close]")
+      ?.addEventListener("click", () => hide(true));
+    nudge
+      .querySelector("[data-comic-nudge-go]")
+      ?.addEventListener("click", () => {
+        toggle.click();
+        hide(true);
+      });
+    toggle.addEventListener("click", () => {
+      if (document.documentElement.dataset.shonen === "true") hide(true);
+    });
+
+    const seen =
+      localStorage.getItem(SEEN) === "seen" ||
+      sessionStorage.getItem(SEEN) === "shown" ||
+      document.documentElement.dataset.shonen === "true";
+    if (seen) return;
+
+    if (timer !== null) window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      sessionStorage.setItem(SEEN, "shown");
+      nudge.hidden = false;
+      requestAnimationFrame(() => {
+        nudge.dataset.visible = "true";
+      });
+    }, 6000);
+  };
+
+  initNudge();
+  document.addEventListener("astro:page-load", initNudge);
+</script>
