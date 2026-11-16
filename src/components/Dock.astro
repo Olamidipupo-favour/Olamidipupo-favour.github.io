@@ -125,7 +125,11 @@ import {
       themeButton?.setAttribute("title", `Theme: ${theme}`);
     };
 
-    const currentTheme = root.dataset.theme ?? "ink";
+    const storedTheme = localStorage.getItem("dipo-theme");
+    const currentTheme =
+      storedTheme && THEMES.includes(storedTheme)
+        ? storedTheme
+        : (root.dataset.theme ?? "ink");
     applyTheme(currentTheme, false);
 
     themeButton?.addEventListener("click", () => {
@@ -135,16 +139,16 @@ import {
       blip(520, 0.07);
     });
 
-    const applyShonen = (on: boolean) => {
+    const applyShonen = (on: boolean, persist = true) => {
       root.dataset.shonen = on ? "true" : "false";
-      localStorage.setItem("dipo-shonen", String(on));
+      if (persist) localStorage.setItem("dipo-shonen", String(on));
       shonenButton?.setAttribute("aria-pressed", String(on));
       shonenButton?.setAttribute(
         "aria-label",
         on ? "Disable Shonen colour mode" : "Toggle Shonen colour mode",
       );
     };
-    applyShonen(root.dataset.shonen === "true");
+    applyShonen(localStorage.getItem("dipo-shonen") === "true", false);
     shonenButton?.addEventListener("click", () => {
       applyShonen(root.dataset.shonen !== "true");
       blip(720, 0.09);

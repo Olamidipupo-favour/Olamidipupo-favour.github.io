@@ -142,7 +142,7 @@ const terminalData = {
     if (!dialog || dialog.dataset.ready === "true") return;
     dialog.dataset.ready = "true";
 
-    const dataNode = dialog.querySelector<HTMLElement>("[data-terminal-data]");
+    const dataNode = document.querySelector<HTMLElement>("[data-terminal-data]");
     const data = dataNode ? JSON.parse(dataNode.textContent ?? "{}") : {};
     const output = dialog.querySelector<HTMLElement>("[data-terminal-output]");
     const form = dialog.querySelector<HTMLFormElement>("[data-terminal-form]");

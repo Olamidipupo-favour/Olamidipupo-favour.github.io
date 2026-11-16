@@ -285,6 +285,15 @@
 
   .prose-manga code:not(pre code) {
     @apply rounded border border-line bg-surface px-1.5 py-0.5 font-mono text-[0.88em] text-accent;
+    overflow-wrap: anywhere;
+  }
+
+  .prose-manga pre {
+    @apply max-w-full overflow-x-auto border border-line bg-surface p-4 font-mono text-[0.82rem] leading-6;
+  }
+
+  .prose-manga table {
+    @apply block max-w-full overflow-x-auto;
   }
 
   .prose-manga blockquote {
