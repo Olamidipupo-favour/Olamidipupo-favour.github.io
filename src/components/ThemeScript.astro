@@ -5,9 +5,7 @@
       var theme =
         stored === "ink" || stored === "amber" || stored === "light"
           ? stored
-          : window.matchMedia("(prefers-color-scheme: light)").matches
-            ? "light"
-            : "ink";
+          : "ink";
       document.documentElement.dataset.theme = theme;
       if (localStorage.getItem("dipo-shonen") === "true") {
         document.documentElement.dataset.shonen = "true";

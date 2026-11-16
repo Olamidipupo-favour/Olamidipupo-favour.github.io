@@ -349,7 +349,7 @@
 
   /* Comic bubble that points at the shōnen toggle in the dock. */
   .comic-nudge {
-    @apply relative mb-1 w-[min(17rem,calc(100vw-2rem))] border-[1.5px] border-ink bg-bg px-3.5 py-3 text-left;
+    @apply relative mb-5 w-[min(17rem,calc(100vw-2rem))] border-[1.5px] border-ink bg-bg px-3.5 py-3 text-left;
     box-shadow: 4px 4px 0 0 rgb(var(--accent));
     transform: rotate(-1.5deg);
     background-image: radial-gradient(
@@ -376,7 +376,7 @@
   }
 
   .comic-nudge-go {
-    @apply border-[1.5px] border-ink bg-accent px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[rgb(var(--accent-ink))] transition-transform hover:-translate-y-px;
+    @apply inline-block border-[1.5px] border-ink bg-accent px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-[rgb(var(--accent-ink))] transition-transform hover:-translate-y-px;
     box-shadow: 2px 2px 0 0 rgb(var(--ink));
   }
 
